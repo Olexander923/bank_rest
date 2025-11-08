@@ -11,6 +11,7 @@ import com.example.bankcards.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -19,14 +20,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CardRepository cardRepository;
-    private final Role role;
+
 
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, CardRepository cardRepository, Role role) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.cardRepository = cardRepository;
-        this.role = role;
+
     }
 
     /**
@@ -60,7 +61,7 @@ public class UserService {
     /**
      * поиск карты
      */
-    public Optional<Card> getUserCards(Long userId){
+    public List<Card> getUserCards(Long userId){
        return cardRepository.findByUserId(userId);
     }
 
