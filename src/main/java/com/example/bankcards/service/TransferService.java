@@ -2,36 +2,37 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.entity.Card;;
 import com.example.bankcards.entity.CardStatus;
+import com.example.bankcards.entity.Transaction;
+import com.example.bankcards.exception.TransferFailedException;
 import com.example.bankcards.repository.CardRepository;
-import com.example.bankcards.repository.UserRepository;
+import com.example.bankcards.repository.TransactionRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;;
+import java.time.LocalDate;;import static com.example.bankcards.entity.TransactionStatus.*;
 
 /**
  * Делать переводы между картами
  */
 @Service
 public class TransferService {
-    private final UserRepository userRepository;
     private final CardRepository cardRepository;
-    private final UserService userService;
     private final CardService cardService;
+    private final TransactionRepository transactionRepository;
 
-    public TransferService(UserRepository userRepository, CardRepository cardRepository, UserService userService, CardService cardService) {
-        this.userRepository = userRepository;
+    public TransferService(CardRepository cardRepository, CardService cardService, TransactionRepository transactionRepository) {
         this.cardRepository = cardRepository;
-        this.userService = userService;
         this.cardService = cardService;
+        this.transactionRepository = transactionRepository;
     }
 
     /**
-     * перевод между своими картами
+     * перевод между своими картами, тут же внутри вся валидация создание и обновление транзации
      */
     @Transactional
-    public void transferBetweenCards(Long fromCardId, Long toCardId,Long userId, BigDecimal transferAmount){
+    public void transferBetweenCards(Long fromCardId, Long toCardId,Long userId, BigDecimal transferAmount) throws TransferFailedException {
         if (transferAmount.signum() < 0)
             throw new IllegalArgumentException("Transfer amount must be positive".formatted(transferAmount));
 
@@ -56,12 +57,21 @@ public class TransferService {
         if(fromCard.getBalance().compareTo(transferAmount) < 0) {
             throw new IllegalStateException("Insufficient funds.");
         }
+        Transaction transaction = new Transaction(fromCard, toCard, transferAmount, PENDING);
+        try {
 
-        fromCard.setBalance(fromCard.getBalance().subtract(transferAmount));
-        toCard.setBalance(toCard.getBalance().add(transferAmount));
+            fromCard.setBalance(fromCard.getBalance().subtract(transferAmount));
+            toCard.setBalance(toCard.getBalance().add(transferAmount));
+            cardRepository.save(fromCard);
+            cardRepository.save(toCard);
+            transaction.setTransactionStatus(SUCCESS);
+        } catch (DataAccessException e) {
+            transaction.setTransactionStatus(FAILED);
+            throw new TransferFailedException("Transfer failed",e);
+        } finally {
 
-        cardRepository.save(fromCard);
-        cardRepository.save(toCard);
+            transactionRepository.save(transaction);
+        }
+
     }
-
 }

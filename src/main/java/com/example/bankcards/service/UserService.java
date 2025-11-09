@@ -43,7 +43,7 @@ public class UserService {
         if(userRepository.existsByEmail(email))
             throw new EmailAlreadyExistsException("email already exist");
         String hashPassword = passwordEncoder.encode(password);
-        Role newRole = Role.USER;
+        Role newRole = role;
         var newUser = new User(username,email,hashPassword, newRole);
 
         return userRepository.save(newUser);
@@ -68,20 +68,19 @@ public class UserService {
     /**
      * обновление пользователя,только для админа
      */
-    public User updateUser(Long userId,String newEmail,String newUsername) throws UserNameAlreadyExistException {
+    public User updateUser(Long userId,String email,String username) throws UserNameAlreadyExistException {
          var user = findUserById(userId).
                  orElseThrow(()-> new IllegalArgumentException("user with id: " + userId + " not found"));
 
-         if(newEmail != null) user.setEmail(newEmail);
+         if(email != null) user.setEmail(email);
 
-         if (newUsername != null) {
-             if (userRepository.existsByUsername(newUsername)) {
+         if (username != null) {
+             if (userRepository.existsByUsername(username)) {
                  throw new UserNameAlreadyExistException("User already exist");
              }
-             user.setUsername(newUsername);
+             user.setUsername(username);
          }
              return userRepository.save(user);
-
     }
 
     public void deleteUser(Long userId) {

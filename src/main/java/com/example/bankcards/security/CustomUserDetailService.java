@@ -2,6 +2,7 @@ package com.example.bankcards.security;
 
 import com.example.bankcards.entity.User;
 import com.example.bankcards.repository.UserRepository;
+import com.example.bankcards.util.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,16 +25,16 @@ public class CustomUserDetailService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(()-> new UsernameNotFoundException("User with user name " + username + " not found"));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),user.getPassword(),getAuthorities(user)
+        return new CustomUserDetails(
+                user.getId(),
+                user.getUsername(),
+                user.getPassword(),
+                user.getEmail(),
+                getAuthorities(user)
                 );
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(User user){
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority(role.getDeclaringClass().getName()));
-        });
-        return authorities;
+        return List.of(new SimpleGrantedAuthority("ROLE_ " + user.getRole().name()));
     }
 }
