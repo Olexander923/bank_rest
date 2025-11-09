@@ -1,0 +1,15 @@
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# IDE
+.idea/
+*.iml
+*.iws
+
+# Logs
+*.log
+
+# Environment
+.envtarget/
