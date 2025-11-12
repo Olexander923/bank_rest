@@ -1,4 +1,6 @@
 package com.example.bankcards.entity;
+import com.example.bankcards.util.CardEncryptionUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -16,11 +18,14 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 19,nullable = false)
+    @Column(length = 255,nullable = false)
     private String cardNumber;
+
+    @Column(name = "expire_date")
     private LocalDate expireDate;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "card_status")
     private CardStatus cardStatus;
 
     @Column(precision = 19,scale = 2,nullable = false)
@@ -38,12 +43,4 @@ public class Card {
         this.user = user;
     }
 
-    //todo вынести в отдельный класс?
-    /**
-     * маскировка карты
-     */
-    @Transient
-    public String getMaskedNumber(){
-     return "**** **** **** " + cardNumber.substring(cardNumber.length() - 4);
-    }
 }

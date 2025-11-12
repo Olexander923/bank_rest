@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class TransferRequestDTO {
-    private Card fromCard;
-    private Card toCard;
+    private Long fromCardId;
+    private Long toCardId;
     private BigDecimal amount;
 }

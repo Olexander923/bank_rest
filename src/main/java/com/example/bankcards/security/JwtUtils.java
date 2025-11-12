@@ -1,7 +1,8 @@
-package com.example.bankcards.util;
+package com.example.bankcards.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,15 @@ public class JwtUtils {
 
     @Value("${jwt.expiration}")
     private Long expiration;//время жизни токена
+
+    @PostConstruct
+    public void logJwtSecret() {
+        if (secret == null || secret.isEmpty()) {
+            throw new IllegalStateException("JWT secret is not configured! Check your .env and application.yml.");
+        }
+        System.out.println(" JWT secret loaded. Length: " + secret.length());
+
+    }
 
     public String tokenGeneration(UserDetails userDetails){
         return Jwts.builder()
@@ -56,5 +66,6 @@ public class JwtUtils {
                 .getSubject();
 
     }
+
 }
 

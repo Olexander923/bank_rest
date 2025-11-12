@@ -24,7 +24,7 @@
             </column>
         </createTable>
 
-        <!-- rollback на случай отмены миграции -->
+        <!--на случай отмены миграции -->
         <rollback>
             <dropTable tableName="users"/>
         </rollback>

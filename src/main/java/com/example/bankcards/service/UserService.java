@@ -8,6 +8,7 @@ import com.example.bankcards.exception.EmailAlreadyExistsException;
 import com.example.bankcards.exception.UserNameAlreadyExistException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,19 +17,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CardRepository cardRepository;
 
-
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, CardRepository cardRepository, Role role) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.cardRepository = cardRepository;
-
-    }
 
     /**
      * создание пользователя
@@ -44,7 +38,7 @@ public class UserService {
             throw new EmailAlreadyExistsException("email already exist");
         String hashPassword = passwordEncoder.encode(password);
         Role newRole = role;
-        var newUser = new User(username,email,hashPassword, newRole);
+        var newUser = new User(username,hashPassword, email, newRole);
 
         return userRepository.save(newUser);
     }
@@ -54,16 +48,6 @@ public class UserService {
           return userRepository.findById(userId);
     }
 
-    public Optional<User> findByUsername(String username){
-      return userRepository.findByUsername(username);
-    }
-
-    /**
-     * поиск карты
-     */
-    public List<Card> getUserCards(Long userId){
-       return cardRepository.findByUserId(userId);
-    }
 
     /**
      * обновление пользователя,только для админа

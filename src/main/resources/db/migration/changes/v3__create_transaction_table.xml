@@ -27,7 +27,7 @@
             </column>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="transaction"
+        <addForeignKeyConstraint baseTableName="transactions"
                                  baseColumnNames="from_card_id"
                                  constraintName="fk_transaction_from_card"
                                  referencedTableName="card"

@@ -40,8 +40,8 @@ public class Transaction {
     @Column(precision = 19,scale = 2,nullable = false)
     private BigDecimal amount;
 
-    @Column(nullable = false)
-    private LocalDateTime timeStamp;
+    @Column(name = "time_stamp", nullable = false)
+    private LocalDateTime timeStamp = LocalDateTime.now();
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

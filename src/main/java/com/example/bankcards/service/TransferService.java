@@ -6,7 +6,6 @@ import com.example.bankcards.entity.Transaction;
 import com.example.bankcards.exception.TransferFailedException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.TransactionRepository;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +18,10 @@ import java.time.LocalDate;;import static com.example.bankcards.entity.Transacti
 @Service
 public class TransferService {
     private final CardRepository cardRepository;
-    private final CardService cardService;
     private final TransactionRepository transactionRepository;
 
-    public TransferService(CardRepository cardRepository, CardService cardService, TransactionRepository transactionRepository) {
+    public TransferService(CardRepository cardRepository, TransactionRepository transactionRepository) {
         this.cardRepository = cardRepository;
-        this.cardService = cardService;
         this.transactionRepository = transactionRepository;
     }
 
@@ -32,13 +29,13 @@ public class TransferService {
      * перевод между своими картами, тут же внутри вся валидация создание и обновление транзации
      */
     @Transactional
-    public void transferBetweenCards(Long fromCardId, Long toCardId,Long userId, BigDecimal transferAmount) throws TransferFailedException {
+    public void transferBetweenCards(Long fromCardId, Long toCardId,Long userId, BigDecimal transferAmount)  {
         if (transferAmount.signum() < 0)
             throw new IllegalArgumentException("Transfer amount must be positive".formatted(transferAmount));
 
-      Card fromCard = cardService.getCardById(fromCardId)
+      Card fromCard = cardRepository.findById(fromCardId)
               .orElseThrow(()-> new IllegalArgumentException("Sender card not found"));
-        Card toCard = cardService.getCardById(toCardId)
+        Card toCard = cardRepository.findById(toCardId)
                 .orElseThrow(()-> new IllegalArgumentException("Recipient card not found"));
 
         if (fromCard.getCardStatus() != CardStatus.ACTIVE || toCard.getCardStatus() != CardStatus.ACTIVE){
@@ -57,21 +54,14 @@ public class TransferService {
         if(fromCard.getBalance().compareTo(transferAmount) < 0) {
             throw new IllegalStateException("Insufficient funds.");
         }
-        Transaction transaction = new Transaction(fromCard, toCard, transferAmount, PENDING);
-        try {
 
             fromCard.setBalance(fromCard.getBalance().subtract(transferAmount));
             toCard.setBalance(toCard.getBalance().add(transferAmount));
-            cardRepository.save(fromCard);
-            cardRepository.save(toCard);
-            transaction.setTransactionStatus(SUCCESS);
-        } catch (DataAccessException e) {
-            transaction.setTransactionStatus(FAILED);
-            throw new TransferFailedException("Transfer failed",e);
-        } finally {
+
+            Transaction transaction = new Transaction(fromCard, toCard, transferAmount, SUCCESS);
 
             transactionRepository.save(transaction);
         }
 
-    }
+
 }

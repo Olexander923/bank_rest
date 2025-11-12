@@ -8,6 +8,7 @@ import com.example.bankcards.entity.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
+import com.example.bankcards.util.CardEncryptionUtil;
 import com.example.bankcards.util.Validator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,61 +20,49 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Создавать, блокировать, активировать, удалять карты
- *
- * Видеть все карты (для ADMIN)
- *
- * Просматривать карты пользователя (поиск + пагинация)
- *
- * Запрашивать блокировку карты
- * R (Read) в CRUD для карт:
- *
- * getAllCards() - все карты (для ADMIN)
- *
- * getUserCards() - карты пользователя (для USER)
- *
- * getCardById() - конкретная карта
- *
- * getCardBalance() - баланс карты
- */
+
 @Service
 public class CardService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final CardRepository cardRepository;
+    private final CardEncryptionUtil cardEncryptionUtil;
 
 
-    public CardService(UserRepository userRepository, PasswordEncoder passwordEncoder, CardRepository cardRepository, UserService userService) {
+    public CardService(UserRepository userRepository, CardRepository cardRepository, CardEncryptionUtil cardEncryptionUtil) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.cardRepository = cardRepository;
+        this.cardEncryptionUtil = cardEncryptionUtil;
     }
     /**
      * создание карты
      */
-    public Card createCard(CardCreateRequestDTO cardCreateRequest,Long userId){
-        User user = userRepository.findById(userId).orElseThrow(()->
-                new IllegalArgumentException("User with id: " + userId + " already exist"));
+    public Card createCard(CardCreateRequestDTO cardCreateRequest,Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new IllegalArgumentException("User with id: " + userId + " not found"));
 
-        if (!cardRepository.existsByCardNumber(cardCreateRequest.getCardNumber()))
-            throw new IllegalArgumentException("Card with cardNumber: " + cardCreateRequest + " already exist");
+        String cardNumber = cardCreateRequest.getCardNumber();
+        String encryptedCardNumber = cardEncryptionUtil.encrypt(cardNumber);
 
-        if(Validator.isCardValidLuhn(cardCreateRequest.getCardNumber())) {
-            throw new IllegalArgumentException("Invalid card number");
+        if (cardRepository.existsByCardNumber(encryptedCardNumber)) {
+            throw new IllegalArgumentException("Card with cardNumber ending in " + cardNumber.substring(cardNumber.length() - 4) + " already exists");
         }
-        String encryptedCardNumber = passwordEncoder.encode(cardCreateRequest.getCardNumber());
 
-       Card newCard = new Card(
-               encryptedCardNumber,
-               LocalDate.now().plusYears(4),
-               CardStatus.ACTIVE,
-               BigDecimal.ZERO,
-               user
-       );
+            if (!Validator.isCardValidLuhn(cardCreateRequest.getCardNumber())) {
+                throw new IllegalArgumentException("Invalid card number");
+            }
 
-        return cardRepository.save(newCard);
-    }
+
+            Card newCard = new Card(
+                    encryptedCardNumber,
+                    cardCreateRequest.getExpireDate(),
+                    CardStatus.ACTIVE,
+                    cardCreateRequest.getBalance(),
+                    user
+            );
+
+            return cardRepository.save(newCard);
+        }
+
 
     /**
      * ,удаление карты
@@ -104,7 +93,7 @@ public class CardService {
     /**
      * активация
      */
-    public Card activeCard(Long cardId){
+    public Card activateCard(Long cardId){
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(()-> new IllegalArgumentException("Card with id: " + cardId + " not found"));
 
@@ -148,5 +137,7 @@ public class CardService {
                         .formatted(cardId)));
         return card.getBalance();
     }
+
+
 
 }

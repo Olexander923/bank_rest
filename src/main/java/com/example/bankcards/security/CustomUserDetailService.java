@@ -29,12 +29,11 @@ public class CustomUserDetailService implements UserDetailsService {
                 user.getId(),
                 user.getUsername(),
                 user.getPassword(),
-                user.getEmail(),
                 getAuthorities(user)
                 );
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(User user){
-        return List.of(new SimpleGrantedAuthority("ROLE_ " + user.getRole().name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 }

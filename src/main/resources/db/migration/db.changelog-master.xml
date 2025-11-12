@@ -5,4 +5,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
 
     <include file="changes/v1__create_users_table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/v2__create_card_table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/v3__create_transaction_table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/v4__insert_admin_user.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

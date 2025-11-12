@@ -10,7 +10,7 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="card_number" type="varchar(19)">
+            <column name="card_number" type="varchar(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="card_status" type="varchar(50)">
