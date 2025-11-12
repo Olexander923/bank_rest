@@ -15,20 +15,19 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true,nullable = false,length = 20)
+    @Column(unique = true, nullable = false, length = 20)
     private String username;
 
-    @Column(nullable = false,length = 50)
+    @Column(nullable = false, length = 50)
     private String password;
 
-    @Column(unique = true,nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
     public User(String username, String password, String email, Role role) {
-
         this.username = username;
         this.password = password;
         this.email = email;

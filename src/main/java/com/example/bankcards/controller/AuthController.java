@@ -35,8 +35,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request){
-        System.out.println(">>> Login attempt: " + request.getUsername());
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             //создание аутентификации
             Authentication authentication = authenticationManager.authenticate(
@@ -51,29 +50,25 @@ public class AuthController {
             //генерируем и возвращаем
             System.out.println("Auth successful for: " + request.getUsername());
             String jwt = jwtUtils.tokenGeneration((UserDetails) authentication.getPrincipal());
-            System.out.println(">>> JWT: " + jwt);
-
 
             return ResponseEntity.ok(new JwtResponse(jwt));
-        } catch (AuthenticationException e){
-            System.out.println(">>> AUTH FAILED: " + e.getClass().getSimpleName() + " - " + e.getMessage());
-            //throw e;
+        } catch (AuthenticationException e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Authentication failed");
-           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 
     @PostMapping("/auth/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request){
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         System.out.println("Received email: " + request.getEmail());
         if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Email is required!");
         }
         //проверяем пользователя, создаем нового
-       if(userRepository.existsByUsername(request.getUsername())) {
-           return ResponseEntity.badRequest().body("Error: Username is already taken!");
-       }
+        if (userRepository.existsByUsername(request.getUsername())) {
+            return ResponseEntity.badRequest().body("Error: Username is already taken!");
+        }
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));//шифр пароля

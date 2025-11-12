@@ -16,12 +16,10 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
-    private final CustomUserDetailService userDetailService;
     private final CustomUserDetailService customUserDetailService;
 
-    public JwtAuthenticationFilter(JwtUtils jwtUtils, CustomUserDetailService userDetailService, CustomUserDetailService customUserDetailService) {
+    public JwtAuthenticationFilter(JwtUtils jwtUtils, CustomUserDetailService customUserDetailService) {
         this.jwtUtils = jwtUtils;
-        this.userDetailService = userDetailService;
         this.customUserDetailService = customUserDetailService;
     }
 
@@ -30,25 +28,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getServletPath();
+        if (path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         //получить заголовок
         final String authHeader = request.getHeader("Authorization");
         //проверяем формат заголовка
         if (authHeader == null || !authHeader.toLowerCase().startsWith("bearer ")) {
-            System.out.println(">>> No valid Authorization header");
+            System.out.println("No valid authorization header");
             filterChain.doFilter(request, response);
             return;
         }
 
         //извлечь токен
         final String jwt = authHeader.substring(7);
-        System.out.println(">>> JWT received: " + jwt.substring(0, Math.min(20, jwt.length())) + "...");
-        if(jwtUtils.tokenValidate(jwt)) {
+        System.out.println("JWT received: " + jwt.substring(0, Math.min(20, jwt.length())) + "...");
+        if (jwtUtils.tokenValidate(jwt)) {
             String username = jwtUtils.getUsernameFromToken(jwt);//получили пользователя
-            System.out.println(">>> Token valid for user: " + username);
+            System.out.println("Token valid for user: " + username);
 
             try {
                 UserDetails userDetails = customUserDetailService.loadUserByUsername(username);//загрузили из БД
-                System.out.println(">>> UserDetails loaded. Authorities: " + userDetails.getAuthorities());
+                System.out.println("UserDetails loaded. Authorities: " + userDetails.getAuthorities());
 
                 //создать объект аутентификации
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
@@ -60,16 +64,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authenticationToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);//сохранение в контекст
-                System.out.println(">>> Authentication set in SecurityContext");
+                System.out.println("Authentication set in SecurityContext");
             } catch (Exception e) {
-                System.err.println(">>> Failed to load user details: " + e.getMessage());
+                System.err.println("Failed to load user details: " + e.getMessage());
             }
-            } else {
-            System.out.println(">>> JWT token is NOT valid");
+        } else {
+            System.err.println("JWT token is NOT valid");
         }
-                filterChain.doFilter(request,response);//передать по цепочке фильтров
-
-        }
+        filterChain.doFilter(request, response);//передать по цепочке
 
     }
+
+}
 

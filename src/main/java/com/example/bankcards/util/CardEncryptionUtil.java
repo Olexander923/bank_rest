@@ -1,18 +1,10 @@
 package com.example.bankcards.util;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import java.util.Base64;
 
 @Component
 public class CardEncryptionUtil {
@@ -39,7 +31,7 @@ public class CardEncryptionUtil {
             byte[] encryptedBytes = cipher.doFinal(cardNumber.getBytes());
             return Base64.getEncoder().encodeToString(encryptedBytes);
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка шифрования номера карты", e);
+            throw new RuntimeException("Card number encrypted error!", e);
         }
     }
 
@@ -50,7 +42,7 @@ public class CardEncryptionUtil {
             byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedCardNumber));
             return new String(decryptedBytes);
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка расшифровки номера карты", e);
+            throw new RuntimeException("Card number decrypted error", e);
         }
     }
 }

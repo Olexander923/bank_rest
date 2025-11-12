@@ -5,7 +5,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
@@ -14,10 +13,7 @@ public class CustomUserDetails implements UserDetails {
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public Long getUserId(){
-        return userId;
-    }
-
+    public Long getUserId() {return userId;}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

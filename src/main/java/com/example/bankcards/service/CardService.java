@@ -1,10 +1,8 @@
 package com.example.bankcards.service;
 
 import com.example.bankcards.dto.CardCreateRequestDTO;
-import com.example.bankcards.dto.CardResponseDTO;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.entity.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
@@ -12,11 +10,9 @@ import com.example.bankcards.util.CardEncryptionUtil;
 import com.example.bankcards.util.Validator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,10 +29,11 @@ public class CardService {
         this.cardRepository = cardRepository;
         this.cardEncryptionUtil = cardEncryptionUtil;
     }
+
     /**
      * создание карты
      */
-    public Card createCard(CardCreateRequestDTO cardCreateRequest,Long userId) {
+    public Card createCard(CardCreateRequestDTO cardCreateRequest, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new IllegalArgumentException("User with id: " + userId + " not found"));
 
@@ -47,31 +44,30 @@ public class CardService {
             throw new IllegalArgumentException("Card with cardNumber ending in " + cardNumber.substring(cardNumber.length() - 4) + " already exists");
         }
 
-            if (!Validator.isCardValidLuhn(cardCreateRequest.getCardNumber())) {
-                throw new IllegalArgumentException("Invalid card number");
-            }
-
-
-            Card newCard = new Card(
-                    encryptedCardNumber,
-                    cardCreateRequest.getExpireDate(),
-                    CardStatus.ACTIVE,
-                    cardCreateRequest.getBalance(),
-                    user
-            );
-
-            return cardRepository.save(newCard);
+        if (!Validator.isCardValidLuhn(cardCreateRequest.getCardNumber())) {
+            throw new IllegalArgumentException("Invalid card number");
         }
 
+
+        Card newCard = new Card(
+                encryptedCardNumber,
+                cardCreateRequest.getExpireDate(),
+                CardStatus.ACTIVE,
+                cardCreateRequest.getBalance(),
+                user
+        );
+
+        return cardRepository.save(newCard);
+    }
 
     /**
      * ,удаление карты
      */
-    public void deleteCard(Long cardId){
+    public void deleteCard(Long cardId) {
         Card card = cardRepository.findById(cardId)
-                .orElseThrow(()-> new IllegalArgumentException("Card with id: " + cardId + " not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Card with id: " + cardId + " not found"));
 
-        if (card.getBalance().compareTo(BigDecimal.ZERO) !=0)
+        if (card.getBalance().compareTo(BigDecimal.ZERO) != 0)
             throw new IllegalStateException("Cannot delete card with non-zero balance");
 
         cardRepository.delete(card);
@@ -80,10 +76,10 @@ public class CardService {
     /**
      * блокировка карты
      */
-    public Card blockCard(Long cardId){
+    public Card blockCard(Long cardId) {
         Card card = cardRepository.findById(cardId)
-                .orElseThrow(()-> new IllegalArgumentException("Card with id: " + cardId + " not found"));
-        if(card.getCardStatus() != CardStatus.ACTIVE)
+                .orElseThrow(() -> new IllegalArgumentException("Card with id: " + cardId + " not found"));
+        if (card.getCardStatus() != CardStatus.ACTIVE)
             throw new IllegalStateException("Only active cards can be blocked");
 
         card.setCardStatus(CardStatus.BLOCKED);
@@ -93,9 +89,9 @@ public class CardService {
     /**
      * активация
      */
-    public Card activateCard(Long cardId){
+    public Card activateCard(Long cardId) {
         Card card = cardRepository.findById(cardId)
-                .orElseThrow(()-> new IllegalArgumentException("Card with id: " + cardId + " not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Card with id: " + cardId + " not found"));
 
         if (card.getCardStatus() == CardStatus.ACTIVE)
             throw new IllegalStateException("Card is already active.");
@@ -109,7 +105,7 @@ public class CardService {
     /**
      * видеть все карты(только admin)
      */
-    public List<Card> getAllCards(){
+    public List<Card> getAllCards() {
         List<Card> allCards = cardRepository.findAll();
         return allCards;
     }
@@ -117,27 +113,25 @@ public class CardService {
     /**
      * просматривать карты пользователя (поиск + пагинация)
      */
-    public Page<Card> getUserCards(Long userId, Pageable pageable){
-        return cardRepository.findByUserId(userId,pageable);
+    public Page<Card> getUserCards(Long userId, Pageable pageable) {
+        return cardRepository.findByUserId(userId, pageable);
     }
 
     /**
-     *  конкретная карта
+     * конкретная карта
      */
-    public Optional<Card> getCardById(Long cardId){
+    public Optional<Card> getCardById(Long cardId) {
         return cardRepository.findById(cardId);
     }
 
     /**
-     *  баланс карты
+     * баланс карты
      */
     public BigDecimal getCardBalance(Long cardId) {
-        var card = cardRepository.findById(cardId).orElseThrow(()->
+        var card = cardRepository.findById(cardId).orElseThrow(() ->
                 new IllegalArgumentException("No such card with id=%s "
                         .formatted(cardId)));
         return card.getBalance();
     }
-
-
 
 }

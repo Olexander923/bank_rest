@@ -18,7 +18,7 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 255,nullable = false)
+    @Column(length = 255, nullable = false)
     private String cardNumber;
 
     @Column(name = "expire_date")
@@ -28,11 +28,11 @@ public class Card {
     @Column(name = "card_status")
     private CardStatus cardStatus;
 
-    @Column(precision = 19,scale = 2,nullable = false)
+    @Column(precision = 19, scale = 2, nullable = false)
     private BigDecimal balance;
 
-    @ManyToOne(fetch = FetchType.LAZY,optional = false)
-    @JoinColumn(name = "user_id",nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public Card(String cardNumber, LocalDate expireDate, CardStatus cardStatus, BigDecimal balance, User user) {

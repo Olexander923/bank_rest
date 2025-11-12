@@ -4,7 +4,6 @@ import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.entity.Transaction;
 import com.example.bankcards.entity.User;
-import com.example.bankcards.exception.TransferFailedException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,8 +62,7 @@ class TransferServiceTest {
     }
 
     @Test
-    void transferBetweenCards_WithValidData_ShouldTransferSuccessfully()  {
-        // Given
+    void transferWithValidData()  {
         BigDecimal transferAmount = new BigDecimal("300.00");
         Long userId = testUser.getId();
 
@@ -72,40 +70,34 @@ class TransferServiceTest {
         when(cardRepository.findById(toCard.getId())).thenReturn(Optional.of(toCard));
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When
         transferService.transferBetweenCards(fromCard.getId(), toCard.getId(), userId, transferAmount);
 
-        // Then
         assertEquals(new BigDecimal("700.00"), fromCard.getBalance());
         assertEquals(new BigDecimal("800.00"), toCard.getBalance());
         verify(transactionRepository).save(any(Transaction.class));
     }
 
     @Test
-    void transferBetweenCards_WithNegativeAmount_ShouldThrowException() {
+    void transferCardsWithNegativeAmount() {
         // Given
         BigDecimal negativeAmount = new BigDecimal("-100.00");
         Long userId = testUser.getId();
-
-        // When & Then
         assertThrows(IllegalArgumentException.class, () ->
                 transferService.transferBetweenCards(fromCard.getId(), toCard.getId(), userId, negativeAmount));
     }
 
     @Test
-    void transferBetweenCards_WithZeroAmount_ShouldThrowException() {
-        // Given
+    void transferWithZeroAmount() {
         BigDecimal zeroAmount = BigDecimal.ZERO;
         Long userId = testUser.getId();
 
-        // When & Then
         assertThrows(IllegalArgumentException.class, () ->
                 transferService.transferBetweenCards(fromCard.getId(), toCard.getId(), userId, zeroAmount));
     }
 
     @Test
-    void transferBetweenCards_WithNonExistentFromCard_ShouldThrowException() {
-        // Given
+    void transferWithNonExistentFromCard() {
+
         Long nonExistentCardId = 999L;
         Long userId = testUser.getId();
         BigDecimal transferAmount = new BigDecimal("100.00");
@@ -113,14 +105,12 @@ class TransferServiceTest {
         when(cardRepository.findById(nonExistentCardId)).thenReturn(Optional.empty());
         when(cardRepository.findById(toCard.getId())).thenReturn(Optional.of(toCard));
 
-        // When & Then
         assertThrows(IllegalArgumentException.class, () ->
                 transferService.transferBetweenCards(nonExistentCardId, toCard.getId(), userId, transferAmount));
     }
 
     @Test
-    void transferBetweenCards_WithNonExistentToCard_ShouldThrowException() {
-        // Given
+    void transferWithNonExistentToCard() {
         Long nonExistentCardId = 999L;
         Long userId = testUser.getId();
         BigDecimal transferAmount = new BigDecimal("100.00");
@@ -128,14 +118,13 @@ class TransferServiceTest {
         when(cardRepository.findById(fromCard.getId())).thenReturn(Optional.of(fromCard));
         when(cardRepository.findById(nonExistentCardId)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(IllegalArgumentException.class, () ->
                 transferService.transferBetweenCards(fromCard.getId(), nonExistentCardId, userId, transferAmount));
     }
 
     @Test
-    void transferBetweenCards_WithInactiveFromCard_ShouldThrowException() {
-        // Given
+    void transferWithInactiveFromCard() {
+
         Long userId = testUser.getId();
         BigDecimal transferAmount = new BigDecimal("100.00");
         fromCard.setCardStatus(CardStatus.BLOCKED);
@@ -149,8 +138,7 @@ class TransferServiceTest {
     }
 
     @Test
-    void transferBetweenCards_WithInactiveToCard_ShouldThrowException() {
-        // Given
+    void transferWithInactiveToCard() {
         Long userId = testUser.getId();
         BigDecimal transferAmount = new BigDecimal("100.00");
         toCard.setCardStatus(CardStatus.BLOCKED);
@@ -158,14 +146,12 @@ class TransferServiceTest {
         when(cardRepository.findById(fromCard.getId())).thenReturn(Optional.of(fromCard));
         when(cardRepository.findById(toCard.getId())).thenReturn(Optional.of(toCard));
 
-        // When & Then
         assertThrows(IllegalStateException.class, () ->
                 transferService.transferBetweenCards(fromCard.getId(), toCard.getId(), userId, transferAmount));
     }
 
     @Test
-    void transferBetweenCards_WithExpiredFromCard_ShouldThrowException() {
-        // Given
+    void transferWithExpiredFromCard() {
         Long userId = testUser.getId();
         BigDecimal transferAmount = new BigDecimal("100.00");
         fromCard.setExpireDate(LocalDate.now().minusDays(1));
@@ -173,14 +159,12 @@ class TransferServiceTest {
         when(cardRepository.findById(fromCard.getId())).thenReturn(Optional.of(fromCard));
         when(cardRepository.findById(toCard.getId())).thenReturn(Optional.of(toCard));
 
-        // When & Then
         assertThrows(IllegalStateException.class, () ->
                 transferService.transferBetweenCards(fromCard.getId(), toCard.getId(), userId, transferAmount));
     }
 
     @Test
-    void transferBetweenCards_WithExpiredToCard_ShouldThrowException() {
-        // Given
+    void transferWithExpiredToCard_() {
         Long userId = testUser.getId();
         BigDecimal transferAmount = new BigDecimal("100.00");
         toCard.setExpireDate(LocalDate.now().minusDays(1));
@@ -188,17 +172,16 @@ class TransferServiceTest {
         when(cardRepository.findById(fromCard.getId())).thenReturn(Optional.of(fromCard));
         when(cardRepository.findById(toCard.getId())).thenReturn(Optional.of(toCard));
 
-        // When & Then
         assertThrows(IllegalStateException.class, () ->
                 transferService.transferBetweenCards(fromCard.getId(), toCard.getId(), userId, transferAmount));
     }
 
     @Test
-    void transferBetweenCards_WithDifferentUserCard_ShouldThrowException() {
+    void transferWithDifferentUserCard() {
 
         User differentUser = new User();
         differentUser.setId(2L);
-        toCard.setUser(differentUser); // Карта принадлежит другому пользователю
+        toCard.setUser(differentUser); // карта другого пользователя
 
         Long userId = testUser.getId();
         BigDecimal transferAmount = new BigDecimal("100.00");
@@ -211,7 +194,7 @@ class TransferServiceTest {
     }
 
     @Test
-    void transferBetweenCards_WithInsufficientFunds() {
+    void transferWithInsufficientFunds() {
 
         Long userId = testUser.getId();
         BigDecimal excessiveAmount = new BigDecimal("1500.00"); // Больше чем баланс
@@ -224,7 +207,7 @@ class TransferServiceTest {
     }
 
     @Test
-    void transferBetweenCards_WithExactBalance()  {
+    void transferWithExactBalance()  {
 
         Long userId = testUser.getId();
         BigDecimal exactAmount = new BigDecimal("1000.00"); // Равно балансу

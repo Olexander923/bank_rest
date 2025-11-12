@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginRequest {
-
-
     private String username;
-    private String password; // пароль в открытом виде (передается при аутентификации)
+    private String password;
 }

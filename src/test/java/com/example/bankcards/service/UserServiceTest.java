@@ -51,8 +51,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_WithValidData_ShouldCreateUser() throws UserNameAlreadyExistException, EmailAlreadyExistsException {
-        // Given
+    void createUserWithValidData() throws UserNameAlreadyExistException, EmailAlreadyExistsException {
         String username = "newuser";
         String email = "new@example.com";
         String password = "password123";
@@ -66,11 +65,8 @@ class UserServiceTest {
             user.setId(1L);
             return user;
         });
-
-        // When
         User result = userService.createUser(username, email, password, Role.USER);
 
-        // Then
         assertNotNull(result);
         assertEquals(username, result.getUsername());
         assertEquals(email, result.getEmail());
@@ -81,22 +77,19 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_WithExistingUsername_ShouldThrowException() {
-        // Given
+    void createUserWithExistingUsername() {
         String existingUsername = "existinguser";
         String email = "new@example.com";
         String password = "password123";
 
         when(userRepository.existsByUsername(existingUsername)).thenReturn(true);
 
-        // When & Then
         assertThrows(UserNameAlreadyExistException.class, () ->
                 userService.createUser(existingUsername, email, password, Role.USER));
     }
 
     @Test
-    void createUser_WithExistingEmail_ShouldThrowException() {
-        // Given
+    void createUserWithExistingEmail() {
         String username = "newuser";
         String existingEmail = "existing@example.com";
         String password = "password123";
@@ -104,66 +97,54 @@ class UserServiceTest {
         when(userRepository.existsByUsername(username)).thenReturn(false);
         when(userRepository.existsByEmail(existingEmail)).thenReturn(true);
 
-        // When & Then
         assertThrows(EmailAlreadyExistsException.class, () ->
                 userService.createUser(username, existingEmail, password, Role.USER));
     }
 
     @Test
-    void createUser_WithNullUsername_ShouldThrowException() {
-        // Given
+    void createUserWithNullUsername() {
         String nullUsername = null;
         String email = "test@example.com";
         String password = "password123";
 
-        // When & Then
         assertThrows(NullPointerException.class, () ->
                 userService.createUser(nullUsername, email, password, Role.USER));
     }
 
     @Test
-    void createUser_WithNullEmail_ShouldThrowException() {
-        // Given
+    void createUserWithNullEmail() {
         String username = "testuser";
         String nullEmail = null;
         String password = "password123";
 
-        // When & Then
         assertThrows(NullPointerException.class, () ->
                 userService.createUser(username, nullEmail, password, Role.USER));
     }
 
     @Test
-    void findUserById_WithExistingUser_ShouldReturnUser() {
-        // Given
+    void findUserByIdWithExistingUser() {
         Long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
-        // When
         Optional<User> result = userService.findUserById(userId);
 
-        // Then
         assertTrue(result.isPresent());
         assertEquals(testUser, result.get());
     }
 
     @Test
-    void findUserById_WithNonExistentUser_ShouldReturnEmpty() {
-        // Given
+    void findUserByIdWithNonExistentUser() {
         Long userId = 999L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // When
         Optional<User> result = userService.findUserById(userId);
 
-        // Then
         assertTrue(result.isEmpty());
     }
 
 
     @Test
-    void updateUser_WithValidData_ShouldUpdateUser() throws UserNameAlreadyExistException {
-        // Given
+    void updateUserWithValidData() throws UserNameAlreadyExistException {
         Long userId = 1L;
         String newEmail = "newemail@example.com";
         String newUsername = "newusername";
@@ -172,18 +153,15 @@ class UserServiceTest {
         when(userRepository.existsByUsername(newUsername)).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When
         User result = userService.updateUser(userId, newEmail, newUsername);
 
-        // Then
         assertEquals(newEmail, result.getEmail());
         assertEquals(newUsername, result.getUsername());
         verify(userRepository).save(testUser);
     }
 
     @Test
-    void updateUser_WithOnlyEmail_ShouldUpdateOnlyEmail() throws UserNameAlreadyExistException {
-        // Given
+    void updateUserWithOnlyEmail() throws UserNameAlreadyExistException {
         Long userId = 1L;
         String newEmail = "newemail@example.com";
         String nullUsername = null;
@@ -191,18 +169,15 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When
         User result = userService.updateUser(userId, newEmail, nullUsername);
 
-        // Then
         assertEquals(newEmail, result.getEmail());
         assertEquals(testUser.getUsername(), result.getUsername()); // username не изменился
         verify(userRepository).save(testUser);
     }
 
     @Test
-    void updateUser_WithOnlyUsername_ShouldUpdateOnlyUsername() throws UserNameAlreadyExistException {
-        // Given
+    void updateUserWithOnlyUsername() throws UserNameAlreadyExistException {
         Long userId = 1L;
         String nullEmail = null;
         String newUsername = "newusername";
@@ -211,18 +186,15 @@ class UserServiceTest {
         when(userRepository.existsByUsername(newUsername)).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When
         User result = userService.updateUser(userId, nullEmail, newUsername);
 
-        // Then
         assertEquals(testUser.getEmail(), result.getEmail()); // email не изменился
         assertEquals(newUsername, result.getUsername());
         verify(userRepository).save(testUser);
     }
 
     @Test
-    void updateUser_WithExistingUsername_ShouldThrowException() {
-        // Given
+    void updateUserWithExistingUsername() {
         Long userId = 1L;
         String newEmail = "newemail@example.com";
         String existingUsername = "existinguser";
@@ -230,55 +202,45 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(userRepository.existsByUsername(existingUsername)).thenReturn(true);
 
-        // When & Then
         assertThrows(UserNameAlreadyExistException.class, () ->
                 userService.updateUser(userId, newEmail, existingUsername));
     }
 
     @Test
-    void updateUser_WithNonExistentUser_ShouldThrowException() {
-        // Given
+    void updateUserWithNonExistentUser() {
         Long userId = 999L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(IllegalArgumentException.class, () ->
                 userService.updateUser(userId, "new@email.com", "newusername"));
     }
 
     @Test
-    void deleteUser_WithNoActiveCards_ShouldDeleteUser() {
-        // Given
+    void deleteUserWithNoActiveCards() {
         Long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(true);
         when(cardRepository.existsByUserIdAndCardStatus(userId, CardStatus.ACTIVE)).thenReturn(false);
 
-        // When
         userService.deleteUser(userId);
 
-        // Then
         verify(userRepository).deleteById(userId);
     }
 
     @Test
-    void deleteUser_WithActiveCards_ShouldThrowException() {
-        // Given
+    void deleteUserWithActiveCards() {
         Long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(true);
         when(cardRepository.existsByUserIdAndCardStatus(userId, CardStatus.ACTIVE)).thenReturn(true);
 
-        // When & Then
         assertThrows(IllegalStateException.class, () ->
                 userService.deleteUser(userId));
     }
 
     @Test
-    void deleteUser_WithNonExistentUser_ShouldThrowException() {
-        // Given
+    void deleteUserWithNonExistentUser() {
         Long userId = 999L;
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        // When & Then
         assertThrows(IllegalArgumentException.class, () ->
                 userService.deleteUser(userId));
     }

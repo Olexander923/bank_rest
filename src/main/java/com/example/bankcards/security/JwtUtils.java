@@ -13,7 +13,7 @@ import java.util.Date;
 public class JwtUtils {
 
     @Value("${jwt.secret}")
-    private String secret;// токен в переменных окружения
+    private String secret;
 
     @Value("${jwt.expiration}")
     private Long expiration;//время жизни токена
@@ -27,16 +27,16 @@ public class JwtUtils {
 
     }
 
-    public String tokenGeneration(UserDetails userDetails){
+    public String tokenGeneration(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(SignatureAlgorithm.HS512,secret)
+                .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
 
-    public boolean tokenValidate(String token){
+    public boolean tokenValidate(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(secret)
@@ -57,7 +57,7 @@ public class JwtUtils {
         return false;
     }
 
-    public String getUsernameFromToken(String token){
+    public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secret)
                 .build()

@@ -23,55 +23,54 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final CardRepository cardRepository;
 
-
     /**
      * создание пользователя
      */
-    public User createUser(String username,String email,String password,Role role) throws UserNameAlreadyExistException, EmailAlreadyExistsException {
-        Objects.requireNonNull(username,"username cannot be null");
-        Objects.requireNonNull(email,"email cannot be null");
+    public User createUser(String username, String email, String password, Role role) throws UserNameAlreadyExistException, EmailAlreadyExistsException {
+        Objects.requireNonNull(username, "Username cannot be null");
+        Objects.requireNonNull(email, "Email cannot be null");
 
-        if(userRepository.existsByUsername(username))
+        if (userRepository.existsByUsername(username))
             throw new UserNameAlreadyExistException("User already exist");
 
-        if(userRepository.existsByEmail(email))
-            throw new EmailAlreadyExistsException("email already exist");
+        if (userRepository.existsByEmail(email))
+            throw new EmailAlreadyExistsException("Email already exist");
         String hashPassword = passwordEncoder.encode(password);
         Role newRole = role;
-        var newUser = new User(username,hashPassword, email, newRole);
+        var newUser = new User(username, hashPassword, email, newRole);
 
         return userRepository.save(newUser);
     }
 
 
-    public Optional<User> findUserById(Long userId){
-          return userRepository.findById(userId);
+    public Optional<User> findUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 
 
     /**
      * обновление пользователя,только для админа
      */
-    public User updateUser(Long userId,String email,String username) throws UserNameAlreadyExistException {
-         var user = findUserById(userId).
-                 orElseThrow(()-> new IllegalArgumentException("user with id: " + userId + " not found"));
+    public User updateUser(Long userId, String email, String username) throws UserNameAlreadyExistException {
+        var user = findUserById(userId).
+                orElseThrow(() -> new IllegalArgumentException("User with id: " + userId + " not found"));
 
-         if(email != null) user.setEmail(email);
+        if (email != null) user.setEmail(email);
 
-         if (username != null) {
-             if (userRepository.existsByUsername(username)) {
-                 throw new UserNameAlreadyExistException("User already exist");
-             }
-             user.setUsername(username);
-         }
-             return userRepository.save(user);
+        if (username != null) {
+            if (userRepository.existsByUsername(username)) {
+                throw new UserNameAlreadyExistException("User already exist");
+            }
+            user.setUsername(username);
+        }
+        return userRepository.save(user);
     }
 
     public void deleteUser(Long userId) {
-        if(!userRepository.existsById(userId))
-                throw new IllegalArgumentException("user with id: " + userId + " not found");
+        if (!userRepository.existsById(userId))
+            throw new IllegalArgumentException("User with id: " + userId + " not found");
         boolean hasActiveCards = cardRepository.existsByUserIdAndCardStatus(userId, CardStatus.ACTIVE);
         if (hasActiveCards) throw new IllegalStateException("Cannot delete user with active card");
-         userRepository.deleteById(userId);
+        userRepository.deleteById(userId);
     }
 }

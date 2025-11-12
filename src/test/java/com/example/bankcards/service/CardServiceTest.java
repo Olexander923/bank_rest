@@ -48,10 +48,9 @@ class CardServiceTest {
     }
 
     @Test
-    void createCard_WithValidData_ShouldEncryptAndSave() {
-        // Given
+    void createCardWithValidData() {
         Long userId = 1L;
-        String plainNumber = "4111111111111111"; // Валидный номер по Луну
+        String plainNumber = "4111111111111111"; // валидный номер
         String encryptedNumber = "encrypted_1111";
         User user = new User("u", "p", "e@example.com", Role.USER);
         user.setId(userId);
@@ -66,37 +65,31 @@ class CardServiceTest {
         when(cardRepository.existsByCardNumber(encryptedNumber)).thenReturn(false);
         when(cardRepository.save(any(Card.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When
         Card result = cardService.createCard(dto, userId);
 
-        // Then
         assertNotNull(result);
         assertEquals(encryptedNumber, result.getCardNumber());
         verify(cardRepository).save(any(Card.class));
     }
 
     @Test
-    void createCard_WithInvalidCardNumber_ShouldThrowException() {
-        // Given
+    void createCardWithInvalidCardNumber() {
         Long userId = 1L;
-        String invalidNumber = "1234567890123456"; // Невалидный номер
+        String invalidNumber = "1234567890123456"; // невалидный
         User user = new User();
         user.setId(userId);
 
         CardCreateRequestDTO dto = new CardCreateRequestDTO();
         dto.setCardNumber(invalidNumber);
         dto.setExpireDate(LocalDate.now().plusYears(1));
-
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        // When & Then
         assertThrows(IllegalArgumentException.class, () ->
                 cardService.createCard(dto, userId));
     }
 
     @Test
-    void deleteCard_WithZeroBalance_ShouldDelete() {
-        // Given
+    void deleteCardWithZeroBalance() {
         Long cardId = 1L;
         Card card = new Card();
         card.setId(cardId);
@@ -104,16 +97,13 @@ class CardServiceTest {
 
         when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
 
-        // When
         cardService.deleteCard(cardId);
 
-        // Then
         verify(cardRepository).delete(card);
     }
 
     @Test
-    void deleteCard_WithNonZeroBalance_ShouldThrowException() {
-        // Given
+    void deleteCardWithNonZeroBalance() {
         Long cardId = 1L;
         Card card = new Card();
         card.setId(cardId);
@@ -121,25 +111,21 @@ class CardServiceTest {
 
         when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
 
-        // When & Then
         assertThrows(IllegalStateException.class, () ->
                 cardService.deleteCard(cardId));
     }
 
     @Test
-    void deleteCard_WithNonExistentCard_ShouldThrowException() {
-        // Given
+    void deleteCardWithNonExistentCard() {
         Long cardId = 999L;
         when(cardRepository.findById(cardId)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(IllegalArgumentException.class, () ->
                 cardService.deleteCard(cardId));
     }
 
     @Test
-    void blockCard_WithActiveCard_ShouldBlock() {
-        // Given
+    void blockCardWithActiveCard() {
         Long cardId = 1L;
         Card card = new Card();
         card.setId(cardId);
@@ -148,17 +134,14 @@ class CardServiceTest {
         when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
         when(cardRepository.save(any(Card.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When
         Card result = cardService.blockCard(cardId);
 
-        // Then
         assertEquals(CardStatus.BLOCKED, result.getCardStatus());
         verify(cardRepository).save(card);
     }
 
     @Test
-    void blockCard_WithAlreadyBlockedCard_ShouldThrowException() {
-        // Given
+    void blockCardWithAlreadyBlockedCard() {
         Long cardId = 1L;
         Card card = new Card();
         card.setId(cardId);
@@ -166,29 +149,25 @@ class CardServiceTest {
 
         when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
 
-        // When & Then
         assertThrows(IllegalStateException.class, () ->
                 cardService.blockCard(cardId));
     }
 
     @Test
-    void blockCard_WithExpiredCard_ShouldThrowException() {
-        // Given
+    void blockCardWithExpiredCard() {
+
         Long cardId = 1L;
         Card card = new Card();
         card.setId(cardId);
         card.setCardStatus(CardStatus.EXPIRED);
 
         when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
-
-        // When & Then
         assertThrows(IllegalStateException.class, () ->
                 cardService.blockCard(cardId));
     }
 
     @Test
-    void activateCard_WithBlockedCard_ShouldActivate() {
-        // Given
+    void activateCardWithBlockedCard() {
         Long cardId = 1L;
         Card card = new Card();
         card.setId(cardId);
@@ -197,7 +176,6 @@ class CardServiceTest {
         when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
         when(cardRepository.save(any(Card.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // When
         Card result = cardService.activateCard(cardId);
 
         assertEquals(CardStatus.ACTIVE, result.getCardStatus());
@@ -205,7 +183,7 @@ class CardServiceTest {
     }
 
     @Test
-    void activateCard_WithAlreadyActiveCard_ShouldThrowException() {
+    void activateCardWithAlreadyActive() {
         Long cardId = 1L;
         Card card = new Card();
         card.setId(cardId);
@@ -216,7 +194,7 @@ class CardServiceTest {
     }
 
     @Test
-    void activateCard_WithExpiredCard_ShouldThrowException() {
+    void activateCardWithExpiredCard() {
         Long cardId = 1L;
         Card card = new Card();
         card.setId(cardId);
@@ -227,7 +205,7 @@ class CardServiceTest {
     }
 
     @Test
-    void getAllCards_ShouldReturnAllCards() {
+    void getAllCards() {
         List<Card> expectedCards = Arrays.asList(new Card(), new Card());
         when(cardRepository.findAll()).thenReturn(expectedCards);
         List<Card> result = cardService.getAllCards();
@@ -236,7 +214,7 @@ class CardServiceTest {
     }
 
     @Test
-    void getUserCards_ShouldReturnPaginatedCards() {
+    void getUserCards() {
         Long userId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
         Page<Card> expectedPage = new PageImpl<>(Arrays.asList(new Card(), new Card()));
@@ -247,7 +225,7 @@ class CardServiceTest {
     }
 
     @Test
-    void getCardById_WithExistingCard_ShouldReturnCard() {
+    void getCardByIdWithExistingCard() {
         Long cardId = 1L;
         Card expectedCard = new Card();
         expectedCard.setId(cardId);
@@ -258,7 +236,7 @@ class CardServiceTest {
     }
 
     @Test
-    void getCardById_WithNonExistentCard_ShouldReturnEmpty() {
+    void getCardByIdWithNonExistentCard() {
         Long cardId = 999L;
         when(cardRepository.findById(cardId)).thenReturn(Optional.empty());
         Optional<Card> result = cardService.getCardById(cardId);
@@ -266,7 +244,7 @@ class CardServiceTest {
     }
 
     @Test
-    void getCardBalance_WithExistingCard_ShouldReturnBalance() {
+    void getCardBalanceWithExistingCard() {
         Long cardId = 1L;
         BigDecimal expectedBalance = new BigDecimal("1500.00");
         Card card = new Card();
@@ -278,7 +256,7 @@ class CardServiceTest {
     }
 
     @Test
-    void getCardBalance_WithNonExistentCard_ShouldThrowException() {
+    void getCardBalanceWithNonExistentCard() {
         Long cardId = 999L;
         when(cardRepository.findById(cardId)).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () ->

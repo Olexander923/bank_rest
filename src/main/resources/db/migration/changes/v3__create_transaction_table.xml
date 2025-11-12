@@ -40,7 +40,7 @@
                 referencedTableName="card"
                 referencedColumnNames="id"/>
 
-        <!-- rollback на случай отмены миграции -->
+        <!-- откат на случай отмены миграции -->
         <rollback>
             <dropTable tableName="transactions"/>
         </rollback>

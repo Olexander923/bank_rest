@@ -9,6 +9,7 @@ import com.example.bankcards.util.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,8 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * для ADMIN (все карты, управление)
- * POST, PUT, DELETE для админов (управление картами)
+ * для ADMIN (управление картами)
  */
 @RestController
 @RequiredArgsConstructor
@@ -29,37 +29,53 @@ public class AdminCardController {
     private final CardService cardService;
     private final CardMapper cardMapper;
 
+
     @PostMapping
     public ResponseEntity<CardResponseDTO> createCard(
             @RequestBody CardCreateRequestDTO createRequestDTO
-    ){
-        Card card = cardService.createCard(createRequestDTO, createRequestDTO.getUserId());
-        CardResponseDTO responseDTO = cardMapper.toDTO(card);
-        return ResponseEntity.ok(responseDTO);
+    ) {
+        System.out.println("AdminCardController.createCard called");
+        System.out.println("Request DTO: " + createRequestDTO);
+        System.out.println("userId: " + createRequestDTO.getUserId());
+
+        try {
+            Card card = cardService.createCard(createRequestDTO, createRequestDTO.getUserId());
+            System.out.println("Service returned card: " + card);
+
+            CardResponseDTO responseDTO = cardMapper.toDTO(card);
+            System.out.println("5. Mapper returned DTO: " + responseDTO);
+
+            return ResponseEntity.ok(responseDTO);
+        } catch (Exception e) {
+            System.err.println("exception in controller: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
+
     @DeleteMapping("{cardId}")
-    public ResponseEntity<Void> deleteCard(@PathVariable Long cardId){
+    public ResponseEntity<Void> deleteCard(@PathVariable Long cardId) {
         cardService.deleteCard(cardId);
         return ResponseEntity.noContent().build();
 
     }
 
     @PostMapping("/{cardId}/block")
-    public ResponseEntity<CardResponseDTO> blockCard(@PathVariable Long cardId){
-       Card card = cardService.blockCard(cardId);
-       return ResponseEntity.ok(cardMapper.toDTO(card));
+    public ResponseEntity<CardResponseDTO> blockCard(@PathVariable Long cardId) {
+        Card card = cardService.blockCard(cardId);
+        return ResponseEntity.ok(cardMapper.toDTO(card));
     }
 
     @PatchMapping("/{cardId}/activate")
-    public ResponseEntity<CardResponseDTO> activateCard(@PathVariable Long cardId){
+    public ResponseEntity<CardResponseDTO> activateCard(@PathVariable Long cardId) {
         Card card = cardService.activateCard(cardId);
         return ResponseEntity.ok(cardMapper.toDTO(card));
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<CardResponseDTO>> getAllCards(){
+    public ResponseEntity<List<CardResponseDTO>> getAllCards() {
         List<Card> cards = cardService.getAllCards();
         List<CardResponseDTO> cardDTOs = cards.stream()
                 .map(cardMapper::toDTO)

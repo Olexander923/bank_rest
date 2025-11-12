@@ -3,7 +3,6 @@ package com.example.bankcards.service;
 import com.example.bankcards.entity.Card;;
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.entity.Transaction;
-import com.example.bankcards.exception.TransferFailedException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;;import static com.example.bankcards.entity.TransactionStatus.*;
 
 /**
- * Делать переводы между картами
+ * переводы между картами,тут же внутри вся валидация создание и обновление транзации
  */
 @Service
 public class TransferService {
@@ -25,20 +24,18 @@ public class TransferService {
         this.transactionRepository = transactionRepository;
     }
 
-    /**
-     * перевод между своими картами, тут же внутри вся валидация создание и обновление транзации
-     */
+
     @Transactional
-    public void transferBetweenCards(Long fromCardId, Long toCardId,Long userId, BigDecimal transferAmount)  {
+    public void transferBetweenCards(Long fromCardId, Long toCardId, Long userId, BigDecimal transferAmount) {
         if (transferAmount.signum() < 0)
             throw new IllegalArgumentException("Transfer amount must be positive".formatted(transferAmount));
 
-      Card fromCard = cardRepository.findById(fromCardId)
-              .orElseThrow(()-> new IllegalArgumentException("Sender card not found"));
+        Card fromCard = cardRepository.findById(fromCardId)
+                .orElseThrow(() -> new IllegalArgumentException("Sender card not found"));
         Card toCard = cardRepository.findById(toCardId)
-                .orElseThrow(()-> new IllegalArgumentException("Recipient card not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Recipient card not found"));
 
-        if (fromCard.getCardStatus() != CardStatus.ACTIVE || toCard.getCardStatus() != CardStatus.ACTIVE){
+        if (fromCard.getCardStatus() != CardStatus.ACTIVE || toCard.getCardStatus() != CardStatus.ACTIVE) {
             throw new IllegalStateException("Both cards must be active.");
         }
 
@@ -51,17 +48,16 @@ public class TransferService {
             throw new SecurityException("Cards must belong to the same user.");
         }
 
-        if(fromCard.getBalance().compareTo(transferAmount) < 0) {
+        if (fromCard.getBalance().compareTo(transferAmount) < 0) {
             throw new IllegalStateException("Insufficient funds.");
         }
 
-            fromCard.setBalance(fromCard.getBalance().subtract(transferAmount));
-            toCard.setBalance(toCard.getBalance().add(transferAmount));
+        fromCard.setBalance(fromCard.getBalance().subtract(transferAmount));
+        toCard.setBalance(toCard.getBalance().add(transferAmount));
 
-            Transaction transaction = new Transaction(fromCard, toCard, transferAmount, SUCCESS);
+        Transaction transaction = new Transaction(fromCard, toCard, transferAmount, SUCCESS);
 
-            transactionRepository.save(transaction);
-        }
-
+        transactionRepository.save(transaction);
+    }
 
 }

@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 /**
  * для пользователя(мои карты,переводы, баланс)
- * GET методы для пользователей (мои карты)
  */
 @RestController
 @RequestMapping("/api/user/cards")
@@ -36,22 +35,22 @@ public class UserCardController {
     @GetMapping
     //для получения всех карт пользователя
     public ResponseEntity<Page<CardResponseDTO>> getUserCards(
-            @AuthenticationPrincipal CustomUserDetails userDetails, Pageable pageable){
+            @AuthenticationPrincipal CustomUserDetails userDetails, Pageable pageable) {
         Long userId = userDetails.getUserId();
-        Page<Card> cards = cardService.getUserCards(userId,pageable);
+        Page<Card> cards = cardService.getUserCards(userId, pageable);
         Page<CardResponseDTO> dtoPage = cards.map(cardMapper::toDTO);
-       return ResponseEntity.ok(dtoPage);
+        return ResponseEntity.ok(dtoPage);
     }
 
 
     @GetMapping("{cardId}/balance")
     public ResponseEntity<BigDecimal> getCardBalance(
             @PathVariable Long cardId,
-            @AuthenticationPrincipal CustomUserDetails userDetails){
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Card card = cardService.getCardById(cardId)
-                .orElseThrow(()-> new IllegalArgumentException("Card not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Card not found"));
 
-        if(!card.getUser().getId().equals(userDetails.getUserId())) {
+        if (!card.getUser().getId().equals(userDetails.getUserId())) {
             throw new SecurityException("Access denied!");
         }
         BigDecimal balance = cardService.getCardBalance(cardId);
@@ -63,14 +62,14 @@ public class UserCardController {
     @PostMapping("/transfer")
     public ResponseEntity<Void> transfer(
             @RequestBody TransferRequestDTO transferRequest,
-            @AuthenticationPrincipal CustomUserDetails userDetails)  {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-            transferService.transferBetweenCards(
-                    transferRequest.getFromCardId(),
-                    transferRequest.getToCardId(),
-                    userDetails.getUserId(),
-                    transferRequest.getAmount()
-            );
+        transferService.transferBetweenCards(
+                transferRequest.getFromCardId(),
+                transferRequest.getToCardId(),
+                userDetails.getUserId(),
+                transferRequest.getAmount()
+        );
 
         return ResponseEntity.ok().build();
     }

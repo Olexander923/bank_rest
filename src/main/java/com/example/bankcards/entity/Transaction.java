@@ -1,7 +1,6 @@
 package com.example.bankcards.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,7 +17,11 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "transactions")
 public class Transaction {
-    public Transaction(Card fromCard, Card toCard, BigDecimal amount, TransactionStatus transactionStatus) {
+    public Transaction(
+            Card fromCard,
+            Card toCard,
+            BigDecimal amount,
+            TransactionStatus transactionStatus) {
         this.fromCard = fromCard;
         this.toCard = toCard;
         this.amount = amount;
@@ -30,14 +33,14 @@ public class Transaction {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from_card_id",nullable = false)
+    @JoinColumn(name = "from_card_id", nullable = false)
     private Card fromCard;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_card_id",nullable = false)
+    @JoinColumn(name = "to_card_id", nullable = false)
     private Card toCard;
 
-    @Column(precision = 19,scale = 2,nullable = false)
+    @Column(precision = 19, scale = 2, nullable = false)
     private BigDecimal amount;
 
     @Column(name = "time_stamp", nullable = false)
