@@ -12,11 +12,12 @@ Java 17+, Spring Boot, Spring Security, Spring Data JPA, PostgreSQL/MySQL, Liqui
 3. После старта приложения в терминале git bash выполнить команды:
 
 # получить токен для ADMIN: 
-curl -X POST http://localhost:8080/api/auth/login     export ADMIN_TOKEN="вставить_токен"
+curl -X POST http://localhost:8080/api/auth/login     
  -H "Content-Type: application/json" -d 
  "{\"username\":\"admin\",\"password\":\"admin\"}"
-  
 
+ export ADMIN_TOKEN="вставить_токен"
+  
 # сперва зарегестрировать USER'a: 
 curl -X POST http://localhost:8080/api/auth/register 
 -H "Content-Type: application/json" -d 
@@ -24,10 +25,11 @@ curl -X POST http://localhost:8080/api/auth/register
 
 
 # получить токен для USER: 
-curl -X POST http://localhost:8080/api/auth/login       export USER_TOKEN="вставить_токен"
+curl -X POST http://localhost:8080/api/auth/login       
 -H "Content-Type: application/json" -d 
 "{\"username\":\"client\",\"password\":\"pass123\"}"
 
+export USER_TOKEN="вставить_токен"
 
 # создать карты для USER'a от ADMIN'a:
 curl -X POST http://localhost:8080/api/admin/cards \
