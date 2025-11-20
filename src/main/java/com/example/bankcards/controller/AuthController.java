@@ -3,8 +3,10 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.JwtResponse;
 import com.example.bankcards.dto.LoginRequest;
 import com.example.bankcards.dto.RegisterRequest;
+import com.example.bankcards.dto.UserResponseDTO;
 import com.example.bankcards.entity.Role;
 import com.example.bankcards.entity.User;
+import com.example.bankcards.exception.ValidationException;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +37,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        try {
+    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest request) {
             //создание аутентификации
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -52,22 +53,17 @@ public class AuthController {
             String jwt = jwtUtils.tokenGeneration((UserDetails) authentication.getPrincipal());
 
             return ResponseEntity.ok(new JwtResponse(jwt));
-        } catch (AuthenticationException e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Authentication failed");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-        }
     }
 
     @PostMapping("/auth/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<UserResponseDTO> register(@RequestBody RegisterRequest request) {
         System.out.println("Received email: " + request.getEmail());
         if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Email is required!");
+            throw new com.example.bankcards.exception.ValidationException("Email is required!");
         }
         //проверяем пользователя, создаем нового
         if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.badRequest().body("Error: Username is already taken!");
+            throw new ValidationException("User name is already taken!");
         }
         User user = new User();
         user.setUsername(request.getUsername());
@@ -77,6 +73,6 @@ public class AuthController {
         Role userRole = Role.USER;
         user.setRole(userRole);
         userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully!");
+        return ResponseEntity.ok(new UserResponseDTO());
     }
 }

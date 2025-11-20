@@ -25,6 +25,9 @@
             <column name="expire_date" type="date">
                 <constraints nullable="false"/>
             </column>
+            <column name="version" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="card"

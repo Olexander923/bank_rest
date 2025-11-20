@@ -26,7 +26,7 @@ public class UserService {
     /**
      * создание пользователя
      */
-    public User createUser(String username, String email, String password, Role role) throws UserNameAlreadyExistException, EmailAlreadyExistsException {
+    public User createUser(String username, String email, String password, Role role)  {
         Objects.requireNonNull(username, "Username cannot be null");
         Objects.requireNonNull(email, "Email cannot be null");
 
@@ -51,7 +51,7 @@ public class UserService {
     /**
      * обновление пользователя,только для админа
      */
-    public User updateUser(Long userId, String email, String username) throws UserNameAlreadyExistException {
+    public User updateUser(Long userId, String email, String username) {
         var user = findUserById(userId).
                 orElseThrow(() -> new IllegalArgumentException("User with id: " + userId + " not found"));
 

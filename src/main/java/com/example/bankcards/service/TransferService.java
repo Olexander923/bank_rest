@@ -5,7 +5,11 @@ import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.entity.Transaction;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.TransactionRepository;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -26,6 +30,7 @@ public class TransferService {
 
 
     @Transactional
+    @Retryable(value = ObjectOptimisticLockingFailureException.class,backoff = @Backoff(delay=100))
     public void transferBetweenCards(Long fromCardId, Long toCardId, Long userId, BigDecimal transferAmount) {
         if (transferAmount.signum() < 0)
             throw new IllegalArgumentException("Transfer amount must be positive".formatted(transferAmount));
