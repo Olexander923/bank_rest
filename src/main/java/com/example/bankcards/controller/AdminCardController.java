@@ -6,6 +6,7 @@ import com.example.bankcards.entity.Card;
 import com.example.bankcards.service.CardService;
 import com.example.bankcards.util.CardMapper;
 import com.example.bankcards.util.CustomUserDetails;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,26 +32,12 @@ public class AdminCardController {
 
 
     @PostMapping
-    public ResponseEntity<CardResponseDTO> createCard(
+    public ResponseEntity<CardResponseDTO> createCard(@Valid
             @RequestBody CardCreateRequestDTO createRequestDTO
     ) {
-        System.out.println("AdminCardController.createCard called");
-        System.out.println("Request DTO: " + createRequestDTO);
-        System.out.println("userId: " + createRequestDTO.getUserId());
-
-        try {
             Card card = cardService.createCard(createRequestDTO, createRequestDTO.getUserId());
             System.out.println("Service returned card: " + card);
-
-            CardResponseDTO responseDTO = cardMapper.toDTO(card);
-            System.out.println("5. Mapper returned DTO: " + responseDTO);
-
-            return ResponseEntity.ok(responseDTO);
-        } catch (Exception e) {
-            System.err.println("exception in controller: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
+            return ResponseEntity.ok(cardMapper.toDTO(card));
     }
 
 
@@ -58,8 +45,8 @@ public class AdminCardController {
     public ResponseEntity<Void> deleteCard(@PathVariable Long cardId) {
         cardService.deleteCard(cardId);
         return ResponseEntity.noContent().build();
-
     }
+
 
     @PostMapping("/{cardId}/block")
     public ResponseEntity<CardResponseDTO> blockCard(@PathVariable Long cardId) {
@@ -67,14 +54,15 @@ public class AdminCardController {
         return ResponseEntity.ok(cardMapper.toDTO(card));
     }
 
+
     @PatchMapping("/{cardId}/activate")
     public ResponseEntity<CardResponseDTO> activateCard(@PathVariable Long cardId) {
         Card card = cardService.activateCard(cardId);
         return ResponseEntity.ok(cardMapper.toDTO(card));
     }
 
+
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CardResponseDTO>> getAllCards() {
         List<Card> cards = cardService.getAllCards();
         List<CardResponseDTO> cardDTOs = cards.stream()
@@ -82,5 +70,4 @@ public class AdminCardController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(cardDTOs);
     }
-
 }
