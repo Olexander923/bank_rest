@@ -1,7 +1,8 @@
-package com.example.bankcards.controller;
+package com.example.bankcards.controller.test_security_configs;
 
-import com.example.bankcards.dto.CardResponseDTO;
-import com.example.bankcards.entity.Card;
+import com.example.bankcards.controller.AdminUserController;
+import com.example.bankcards.controller.AuthController;
+import com.example.bankcards.controller.UserCardController;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.security.CustomUserDetailService;
 import com.example.bankcards.security.JwtAuthenticationFilter;
@@ -17,26 +18,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.io.IOException;
-
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @TestConfiguration
 @EnableWebSecurity
-@ComponentScan(excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = CardMapper.class))
 public class TestSecurityConfig {
     @Bean
     public SecurityFilterChain testFilterChain(HttpSecurity http) throws Exception {
@@ -59,7 +53,7 @@ public class TestSecurityConfig {
             @Override
             protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain filterChain) throws ServletException, IOException {
-                // Пропускаем все запросы без проверки JWT
+                //пропускаем все запросы без проверки jwt
                 filterChain.doFilter(request, response);
             }
         };
@@ -71,24 +65,6 @@ public class TestSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    @Primary
-//    public CardMapper cardMapper() {
-//        CardMapper mock = mock(CardMapper.class);
-//        when(mock.toDTO(any())).thenAnswer(invocation -> {
-//            Card card = invocation.getArgument(0);
-//            System.out.println("Card ID in mapper: " + card.getId());
-//            CardResponseDTO dto = new CardResponseDTO();
-//            dto.setId(card.getId()); // Используем ID из карты
-//            dto.setUserId(card.getUser().getId());
-//            dto.setMaskedNumber("400000******0002");
-//            dto.setBalance(card.getBalance());
-//            dto.setCardStatus(card.getCardStatus());
-//            dto.setExpireDate(card.getExpireDate());
-//            return dto;
-//        });
-//        return mock;
-//    }
 
     @Bean
     @Primary

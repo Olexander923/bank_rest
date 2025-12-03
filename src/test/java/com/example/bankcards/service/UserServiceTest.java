@@ -41,7 +41,6 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
         testUser = new User();
         testUser.setId(1L);
         testUser.setUsername("testuser");
@@ -123,22 +122,16 @@ class UserServiceTest {
 
     @Test
     void findUserByIdWithExistingUser() {
-        Long userId = 1L;
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
-
-        Optional<User> result = userService.findUserById(userId);
-
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        Optional<User> result = userService.findUserById(1L);
         assertTrue(result.isPresent());
         assertEquals(testUser, result.get());
     }
 
     @Test
     void findUserByIdWithNonExistentUser() {
-        Long userId = 999L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        Optional<User> result = userService.findUserById(userId);
-
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+        Optional<User> result = userService.findUserById(999L);
         assertTrue(result.isEmpty());
     }
 
@@ -162,14 +155,13 @@ class UserServiceTest {
 
     @Test
     void updateUserWithOnlyEmail() throws UserNameAlreadyExistException {
-        Long userId = 1L;
         String newEmail = "newemail@example.com";
         String nullUsername = null;
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        User result = userService.updateUser(userId, newEmail, nullUsername);
+        User result = userService.updateUser(1L, newEmail, nullUsername);
 
         assertEquals(newEmail, result.getEmail());
         assertEquals(testUser.getUsername(), result.getUsername()); // username не изменился
@@ -178,15 +170,14 @@ class UserServiceTest {
 
     @Test
     void updateUserWithOnlyUsername() throws UserNameAlreadyExistException {
-        Long userId = 1L;
         String nullEmail = null;
         String newUsername = "newusername";
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(userRepository.existsByUsername(newUsername)).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        User result = userService.updateUser(userId, nullEmail, newUsername);
+        User result = userService.updateUser(1L, nullEmail, newUsername);
 
         assertEquals(testUser.getEmail(), result.getEmail()); // email не изменился
         assertEquals(newUsername, result.getUsername());
@@ -195,54 +186,49 @@ class UserServiceTest {
 
     @Test
     void updateUserWithExistingUsername() {
-        Long userId = 1L;
         String newEmail = "newemail@example.com";
         String existingUsername = "existinguser";
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(userRepository.existsByUsername(existingUsername)).thenReturn(true);
 
         assertThrows(UserNameAlreadyExistException.class, () ->
-                userService.updateUser(userId, newEmail, existingUsername));
+                userService.updateUser(1L, newEmail, existingUsername));
     }
 
     @Test
     void updateUserWithNonExistentUser() {
-        Long userId = 999L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () ->
-                userService.updateUser(userId, "new@email.com", "newusername"));
+                userService.updateUser(999L, "new@email.com", "newusername"));
     }
 
     @Test
     void deleteUserWithNoActiveCards() {
-        Long userId = 1L;
-        when(userRepository.existsById(userId)).thenReturn(true);
-        when(cardRepository.existsByUserIdAndCardStatus(userId, CardStatus.ACTIVE)).thenReturn(false);
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(cardRepository.existsByUserIdAndCardStatus(1L, CardStatus.ACTIVE)).thenReturn(false);
 
-        userService.deleteUser(userId);
+        userService.deleteUser(1L);
 
-        verify(userRepository).deleteById(userId);
+        verify(userRepository).deleteById(1L);
     }
 
     @Test
     void deleteUserWithActiveCards() {
-        Long userId = 1L;
-        when(userRepository.existsById(userId)).thenReturn(true);
-        when(cardRepository.existsByUserIdAndCardStatus(userId, CardStatus.ACTIVE)).thenReturn(true);
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(cardRepository.existsByUserIdAndCardStatus(1L, CardStatus.ACTIVE)).thenReturn(true);
 
         assertThrows(IllegalStateException.class, () ->
-                userService.deleteUser(userId));
+                userService.deleteUser(1L));
     }
 
     @Test
     void deleteUserWithNonExistentUser() {
-        Long userId = 999L;
-        when(userRepository.existsById(userId)).thenReturn(false);
+        when(userRepository.existsById(999L)).thenReturn(false);
 
         assertThrows(IllegalArgumentException.class, () ->
-                userService.deleteUser(userId));
+                userService.deleteUser(999L));
     }
 }
 

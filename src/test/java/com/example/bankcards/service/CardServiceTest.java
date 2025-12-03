@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import javax.naming.ServiceUnavailableException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -49,23 +50,22 @@ class CardServiceTest {
 
     @Test
     void createCardWithValidData() {
-        Long userId = 1L;
         String plainNumber = "4111111111111111"; // валидный номер
         String encryptedNumber = "encrypted_1111";
         User user = new User("u", "p", "e@example.com", Role.USER);
-        user.setId(userId);
+        user.setId(1L);
 
         CardCreateRequestDTO dto = new CardCreateRequestDTO();
         dto.setCardNumber(plainNumber);
         dto.setExpireDate(LocalDate.of(2028, 12, 31));
         dto.setBalance(BigDecimal.ZERO);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cardEncryptionUtil.encrypt(plainNumber)).thenReturn(encryptedNumber);
         when(cardRepository.existsByCardNumber(encryptedNumber)).thenReturn(false);
         when(cardRepository.save(any(Card.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Card result = cardService.createCard(dto, userId);
+        Card result = cardService.createCard(dto, 1L);
 
         assertNotNull(result);
         assertEquals(encryptedNumber, result.getCardNumber());
@@ -74,67 +74,62 @@ class CardServiceTest {
 
     @Test
     void createCardWithInvalidCardNumber() {
-        Long userId = 1L;
         String invalidNumber = "1234567890123456"; // невалидный
         User user = new User();
-        user.setId(userId);
+        user.setId(1L);
 
         CardCreateRequestDTO dto = new CardCreateRequestDTO();
         dto.setCardNumber(invalidNumber);
         dto.setExpireDate(LocalDate.now().plusYears(1));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         assertThrows(IllegalArgumentException.class, () ->
-                cardService.createCard(dto, userId));
+                cardService.createCard(dto, 1L));
     }
 
     @Test
     void deleteCardWithZeroBalance() {
-        Long cardId = 1L;
         Card card = new Card();
-        card.setId(cardId);
+        card.setId(1L);
         card.setBalance(BigDecimal.ZERO);
 
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
 
-        cardService.deleteCard(cardId);
+        cardService.deleteCard(1L);
 
         verify(cardRepository).delete(card);
     }
 
     @Test
     void deleteCardWithNonZeroBalance() {
-        Long cardId = 1L;
         Card card = new Card();
-        card.setId(cardId);
+        card.setId(1L);
         card.setBalance(new BigDecimal("100.00"));
 
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
 
         assertThrows(IllegalStateException.class, () ->
-                cardService.deleteCard(cardId));
+                cardService.deleteCard(1L));
     }
 
     @Test
     void deleteCardWithNonExistentCard() {
-        Long cardId = 999L;
-        when(cardRepository.findById(cardId)).thenReturn(Optional.empty());
+        when(cardRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () ->
-                cardService.deleteCard(cardId));
+                cardService.deleteCard(999L));
     }
 
     @Test
     void blockCardWithActiveCard() {
-        Long cardId = 1L;
         Card card = new Card();
-        card.setId(cardId);
+        card.setId(1L);
         card.setCardStatus(CardStatus.ACTIVE);
 
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
         when(cardRepository.save(any(Card.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Card result = cardService.blockCard(cardId);
+        Card result = cardService.blockCard(1L);
 
         assertEquals(CardStatus.BLOCKED, result.getCardStatus());
         verify(cardRepository).save(card);
@@ -142,41 +137,37 @@ class CardServiceTest {
 
     @Test
     void blockCardWithAlreadyBlockedCard() {
-        Long cardId = 1L;
         Card card = new Card();
-        card.setId(cardId);
+        card.setId(1L);
         card.setCardStatus(CardStatus.BLOCKED);
 
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
 
         assertThrows(IllegalStateException.class, () ->
-                cardService.blockCard(cardId));
+                cardService.blockCard(1L));
     }
 
     @Test
     void blockCardWithExpiredCard() {
-
-        Long cardId = 1L;
         Card card = new Card();
-        card.setId(cardId);
+        card.setId(1L);
         card.setCardStatus(CardStatus.EXPIRED);
 
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
         assertThrows(IllegalStateException.class, () ->
-                cardService.blockCard(cardId));
+                cardService.blockCard(1L));
     }
 
     @Test
     void activateCardWithBlockedCard() {
-        Long cardId = 1L;
         Card card = new Card();
-        card.setId(cardId);
+        card.setId(1L);
         card.setCardStatus(CardStatus.BLOCKED);
 
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
         when(cardRepository.save(any(Card.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Card result = cardService.activateCard(cardId);
+        Card result = cardService.activateCard(1L);
 
         assertEquals(CardStatus.ACTIVE, result.getCardStatus());
         verify(cardRepository).save(card);
@@ -184,24 +175,22 @@ class CardServiceTest {
 
     @Test
     void activateCardWithAlreadyActive() {
-        Long cardId = 1L;
         Card card = new Card();
-        card.setId(cardId);
+        card.setId(1L);
         card.setCardStatus(CardStatus.ACTIVE);
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
         assertThrows(IllegalStateException.class, () ->
-                cardService.activateCard(cardId));
+                cardService.activateCard(1L));
     }
 
     @Test
     void activateCardWithExpiredCard() {
-        Long cardId = 1L;
         Card card = new Card();
-        card.setId(cardId);
+        card.setId(1L);
         card.setCardStatus(CardStatus.EXPIRED);
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
         assertThrows(IllegalStateException.class, () ->
-                cardService.activateCard(cardId));
+                cardService.activateCard(1L));
     }
 
     @Test
@@ -215,22 +204,20 @@ class CardServiceTest {
 
     @Test
     void getUserCards() {
-        Long userId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
         Page<Card> expectedPage = new PageImpl<>(Arrays.asList(new Card(), new Card()));
-        when(cardRepository.findByUserId(userId, pageable)).thenReturn(expectedPage);
-        Page<Card> result = cardService.getUserCards(userId, pageable);
+        when(cardRepository.findByUserId(1L, pageable)).thenReturn(expectedPage);
+        Page<Card> result = cardService.getUserCards(1L, pageable);
         assertEquals(expectedPage, result);
-        verify(cardRepository).findByUserId(userId, pageable);
+        verify(cardRepository).findByUserId(1L, pageable);
     }
 
     @Test
     void getCardByIdWithExistingCard() {
-        Long cardId = 1L;
         Card expectedCard = new Card();
-        expectedCard.setId(cardId);
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(expectedCard));
-        Optional<Card> result = cardService.getCardById(cardId);
+        expectedCard.setId(1L);
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(expectedCard));
+        Optional<Card> result = cardService.getCardById(1L);
         assertTrue(result.isPresent());
         assertEquals(expectedCard, result.get());
     }
@@ -244,22 +231,20 @@ class CardServiceTest {
     }
 
     @Test
-    void getCardBalanceWithExistingCard() {
-        Long cardId = 1L;
+    void getCardBalanceWithExistingCard() throws ServiceUnavailableException {
         BigDecimal expectedBalance = new BigDecimal("1500.00");
         Card card = new Card();
-        card.setId(cardId);
+        card.setId(1L);
         card.setBalance(expectedBalance);
-        when(cardRepository.findById(cardId)).thenReturn(Optional.of(card));
-        BigDecimal result = cardService.getCardBalance(cardId);
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
+        BigDecimal result = cardService.getCardBalance(1L);
         assertEquals(expectedBalance, result);
     }
 
     @Test
     void getCardBalanceWithNonExistentCard() {
-        Long cardId = 999L;
-        when(cardRepository.findById(cardId)).thenReturn(Optional.empty());
+        when(cardRepository.findById(999L)).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () ->
-                cardService.getCardBalance(cardId));
+                cardService.getCardBalance(999L));
     }
 }

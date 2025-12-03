@@ -23,7 +23,7 @@ public class JwtUtils {
         if (secret == null || secret.isEmpty()) {
             throw new IllegalStateException("JWT secret is not configured! Check your .env and application.yml.");
         }
-        System.out.println(" JWT secret loaded. Length: " + secret.length());
+        System.out.println("JWT secret loaded. Length: " + secret.length());
 
     }
 

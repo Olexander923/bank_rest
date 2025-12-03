@@ -22,6 +22,7 @@ import java.time.LocalDate;;import static com.example.bankcards.entity.Transacti
 public class TransferService {
     private final CardRepository cardRepository;
     private final TransactionRepository transactionRepository;
+    private final static BigDecimal MAX_TRANSFER_AMOUNT = new BigDecimal("1000000.00");
 
     public TransferService(CardRepository cardRepository, TransactionRepository transactionRepository) {
         this.cardRepository = cardRepository;
@@ -57,11 +58,14 @@ public class TransferService {
             throw new IllegalStateException("Insufficient funds.");
         }
 
+        if (transferAmount.compareTo(MAX_TRANSFER_AMOUNT) > 0) {
+            throw new IllegalStateException("Transfer amount exceeds maximum limit.");
+        }
+
         fromCard.setBalance(fromCard.getBalance().subtract(transferAmount));
         toCard.setBalance(toCard.getBalance().add(transferAmount));
 
         Transaction transaction = new Transaction(fromCard, toCard, transferAmount, SUCCESS);
-
         transactionRepository.save(transaction);
     }
 

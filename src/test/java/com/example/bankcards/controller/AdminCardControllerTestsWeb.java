@@ -1,5 +1,6 @@
 package com.example.bankcards.controller;
 
+import com.example.bankcards.controller.test_security_configs.TestSecurityConfig;
 import com.example.bankcards.dto.CardCreateRequestDTO;
 import com.example.bankcards.dto.CardResponseDTO;
 import com.example.bankcards.entity.Card;
@@ -8,7 +9,6 @@ import com.example.bankcards.entity.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.*;
 import com.example.bankcards.service.CardService;
-
 import com.example.bankcards.util.CardMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,23 +16,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 
 @WebMvcTest(AdminCardController.class)
@@ -45,9 +44,8 @@ public class AdminCardControllerTestsWeb {
 
     @Test
     void createCard_return200() throws Exception {
-        Long userId = 1L;
-        User user = new User("testuser", "password", "test@example.com", Role.USER);
-        user.setId(userId);
+        User user = new User("testuser", "ValidPass1@", "test@example.com", Role.USER);
+        user.setId(1L);
 
         Card mockCard = new Card(
                 "encrypted_number",
@@ -60,13 +58,13 @@ public class AdminCardControllerTestsWeb {
 
         CardResponseDTO mockResponseDTO = new CardResponseDTO();
         mockResponseDTO.setId(1L);
-        mockResponseDTO.setUserId(userId);
+        mockResponseDTO.setUserId(1L);
         mockResponseDTO.setMaskedNumber("400000******0002");
         mockResponseDTO.setExpireDate(LocalDate.of(2028, 12, 31));
         mockResponseDTO.setCardStatus(CardStatus.ACTIVE);
         mockResponseDTO.setBalance(new BigDecimal("5000.00"));
 
-        when(cardService.createCard(any(CardCreateRequestDTO.class), eq(userId)))
+        when(cardService.createCard(any(CardCreateRequestDTO.class), eq(1L)))
                 .thenReturn(mockCard);
         when(cardMapper.toDTO(any())).thenAnswer(invocation -> {
             Card card = invocation.getArgument(0);
@@ -96,14 +94,13 @@ public class AdminCardControllerTestsWeb {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1));
         verify(cardService, times(1))
-                .createCard(any(CardCreateRequestDTO.class), eq(userId));
+                .createCard(any(CardCreateRequestDTO.class), eq(1L));
     }
 
     @Test
     void createCard_return400_invalidCardNumber() throws Exception {
-        Long userId = 1L;
-        User user = new User("testuser", "password", "test@example.com", Role.USER);
-        user.setId(userId);
+        User user = new User("testuser", "ValidPass1@", "test@example.com", Role.USER);
+        user.setId(1L);
 
         Card mockCard = new Card(
                 "encrypted_number",
@@ -116,7 +113,7 @@ public class AdminCardControllerTestsWeb {
 
         CardResponseDTO mockResponseDTO = new CardResponseDTO();
         mockResponseDTO.setId(1L);
-        mockResponseDTO.setUserId(userId);
+        mockResponseDTO.setUserId(1L);
         mockResponseDTO.setMaskedNumber("400000******0002");
         mockResponseDTO.setExpireDate(LocalDate.of(2028, 12, 31));
         mockResponseDTO.setCardStatus(CardStatus.ACTIVE);
@@ -147,9 +144,7 @@ public class AdminCardControllerTestsWeb {
     @Test
     @WithMockUser("ADMIN")
     void createCardForNotExistingUser_return404() throws Exception {
-        Long userId = 999L;
-
-        when(cardService.createCard(any(CardCreateRequestDTO.class), eq(userId)))
+        when(cardService.createCard(any(CardCreateRequestDTO.class), eq(999L)))
                 .thenThrow(new UserNotFoundException("User with this id not found"));
 
         mockMvc.perform(post("/api/admin/cards")
@@ -168,15 +163,13 @@ public class AdminCardControllerTestsWeb {
                 .andExpect(jsonPath("$.message")
                         .value("User with this id not found"));
         verify(cardService, times(1)).
-                createCard(any(CardCreateRequestDTO.class), eq(userId));
+                createCard(any(CardCreateRequestDTO.class), eq(999L));
 
     }
 
         @Test
         void createCardWithNegativeBalance_return400() throws Exception {
-            Long userId = 1L;
-
-            when(cardService.createCard(any(CardCreateRequestDTO.class), eq(userId)))
+            when(cardService.createCard(any(CardCreateRequestDTO.class), eq(1L)))
                     .thenThrow(new ValidationException("Card balance cannot be negative!"));
 
             mockMvc.perform(post("/api/admin/cards")
@@ -195,14 +188,12 @@ public class AdminCardControllerTestsWeb {
                     .andExpect(jsonPath("$.message")
                             .value("Card balance cannot be negative!"));
             verify(cardService, times(1))
-                    .createCard(any(CardCreateRequestDTO.class), eq(userId));
+                    .createCard(any(CardCreateRequestDTO.class), eq(1L));
         }
 
         @Test
         void createCardWithExpiredDate_return400() throws Exception {
-            Long userId = 1L;
-
-            when(cardService.createCard(any(CardCreateRequestDTO.class), eq(userId)))
+            when(cardService.createCard(any(CardCreateRequestDTO.class), eq(1L)))
                     .thenThrow(new ValidationException("Card is expired!"));
 
             mockMvc.perform(post("/api/admin/cards")
@@ -219,7 +210,7 @@ public class AdminCardControllerTestsWeb {
             """))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.message").value("Card is expired!"));
-            verify(cardService, times(1)).createCard(any(CardCreateRequestDTO.class), eq(userId));
+            verify(cardService, times(1)).createCard(any(CardCreateRequestDTO.class), eq(1L));
         }
 
         @Test
@@ -249,7 +240,7 @@ public class AdminCardControllerTestsWeb {
             {
                 "cardNumber": "4000000000003212",
                 "expireDate": "2028-12-31",
-                
+    
                 "userId": 1,
                 "cardStatus": "ACTIVE"
             }
@@ -279,8 +270,7 @@ public class AdminCardControllerTestsWeb {
 
     @Test
     void createCardWithDuplication_return409() throws Exception {
-        Long userId = 1L;
-        when(cardService.createCard(any(CardCreateRequestDTO.class),eq(userId)))
+        when(cardService.createCard(any(CardCreateRequestDTO.class),eq(1L)))
                 .thenThrow(new CardAlreadyExistException("Card with this number already exist!"));
 
         mockMvc.perform(post("/api/admin/cards")
@@ -315,10 +305,9 @@ public class AdminCardControllerTestsWeb {
 
     @Test//проверка что id нет в бд
     void deleteCard_return404() throws Exception {
-        Long cardId = 999L;
         doThrow(new CardNotFoundException("Card not found!"))
                 .when(cardService)
-                .deleteCard(cardId);
+                .deleteCard(999L);
        mockMvc.perform(delete("/api/admin/cards/999"))
                .andExpect(status().isNotFound());
     }
@@ -326,10 +315,8 @@ public class AdminCardControllerTestsWeb {
     @DisplayName("method 'blockCard' tests")
     @Test
     void blockCard_return200() throws Exception {
-        Long cardId = 1L;
-        Long userId = 1L;
-        User user = new User("testuser", "password", "test@example.com", Role.USER);
-        user.setId(userId);
+        User user = new User("testuser", "ValidPass1@", "test@example.com", Role.USER);
+        user.setId(1L);
 
         Card mockCard = new Card(
                 "encrypted_number",
@@ -339,9 +326,93 @@ public class AdminCardControllerTestsWeb {
                 user
         );
         mockCard.setId(1L);
-        when(cardService.blockCard(cardId)).thenReturn(mockCard);
+        when(cardService.blockCard(1L)).thenReturn(mockCard);
         mockMvc.perform(post("/api/admin/cards/1/block"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void blockCard_return400() throws Exception {
+        mockMvc.perform(post("/api/admin/cards/abc/block"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void blockCard_return404() throws Exception {
+        when(cardService.blockCard(999L)).thenThrow(new CardNotFoundException("Card not found"));
+        mockMvc.perform(post("/api/admin/cards/999/block"))
+                .andExpect(status().isNotFound());
+    }
+
+    @DisplayName("method 'activateCard' tests")
+    @Test
+    void activateCard_return200() throws Exception {
+        User user = new User("testuser", "ValidPass1@", "test@example.com", Role.USER);
+        user.setId(1L);
+
+        Card mockCard = new Card(
+                "encrypted_number",
+                LocalDate.of(2028, 12, 31),
+                CardStatus.ACTIVE,
+                new BigDecimal("5000.00"),
+                user
+        );
+        mockCard.setId(1L);
+        when(cardService.blockCard(1L)).thenReturn(mockCard);
+        mockMvc.perform(patch("/api/admin/cards/1/activate"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void activateCard_return400() throws Exception {
+        mockMvc.perform(patch("/api/admin/cards/abc/activate"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void activateCard_return404() throws Exception {
+        when(cardService.activateCard(999L)).thenThrow(new CardNotFoundException("Card not found"));
+        mockMvc.perform(patch("/api/admin/cards/999/activate"))
+                .andExpect(status().isNotFound());
+    }
+
+    @DisplayName("method 'getAllCards' tests")
+    @Test
+    void getAllCards_return200() throws Exception {
+        User user = new User("testuser", "ValidPass1@", "test@example.com", Role.USER);
+        user.setId(1L);
+
+        Card card1 = new Card(
+                "encrypted_number",
+                LocalDate.of(2028, 12, 31),
+                CardStatus.ACTIVE,
+                new BigDecimal("5000.00"),
+                user
+        );
+        Card card2 = new Card(
+                "encrypted_number",
+                LocalDate.of(2028, 12, 31),
+                CardStatus.ACTIVE,
+                new BigDecimal("3000.00"),
+                user
+        );
+        List<Card> mockCards = List.of(card1,card2);
+        CardResponseDTO mockResponseDTO = new CardResponseDTO();
+        mockResponseDTO.setId(1L);
+        mockResponseDTO.setUserId(1L);
+        mockResponseDTO.setMaskedNumber("400000******0002");
+        mockResponseDTO.setExpireDate(LocalDate.of(2028, 12, 31));
+        mockResponseDTO.setCardStatus(CardStatus.ACTIVE);
+        mockResponseDTO.setBalance(new BigDecimal("5000.00"));
+
+        when(cardService.getAllCards()).thenReturn(mockCards);
+        when(cardMapper.toDTO(any(Card.class))).thenReturn(mockResponseDTO);
+
+        mockMvc.perform(get("/api/admin/cards"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                        .andExpect(jsonPath("$[0].id").value(1));
+
     }
 
 }

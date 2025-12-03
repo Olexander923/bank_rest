@@ -5,8 +5,10 @@ import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.EmailAlreadyExistsException;
 import com.example.bankcards.exception.UserNameAlreadyExistException;
 import com.example.bankcards.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -14,25 +16,27 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/admin/users")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {
     private final UserService userService;
 
 
-    @RequestMapping("/api/admin/user")
-    public ResponseEntity<UserResponseDTO> createUsers(
-            @RequestBody UserCreateRequestDTO createRequest) throws UserNameAlreadyExistException, EmailAlreadyExistsException {
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> createUsers(@Valid
+            @RequestBody UserCreateRequestDTO createRequest) {
         User user = userService.createUser(
                 createRequest.getUsername(),
-                createRequest.getEmail(),
                 createRequest.getPassword(),
+                createRequest.getEmail(),
                 createRequest.getRole()
         );
         UserResponseDTO userResponse = UserResponseDTO.fromEntity(user);
         return ResponseEntity.ok(userResponse);
     }
 
-    @PostMapping("/api/admin/users/{userId}")
-    public ResponseEntity<UserResponseDTO> updateUsers(
+    @PutMapping("/{userId}")
+    public ResponseEntity<UserResponseDTO> updateUsers(@Valid
             @RequestBody UserUpdateRequestDTO updateRequest) throws UserNameAlreadyExistException {
         User user = userService.updateUser(
                 updateRequest.getUserId(),

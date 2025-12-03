@@ -42,7 +42,6 @@ class TransferServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
         testUser = new User();
         testUser.setId(1L);
 
@@ -79,7 +78,6 @@ class TransferServiceTest {
 
     @Test
     void transferCardsWithNegativeAmount() {
-        // Given
         BigDecimal negativeAmount = new BigDecimal("-100.00");
         Long userId = testUser.getId();
         assertThrows(IllegalArgumentException.class, () ->
@@ -97,7 +95,6 @@ class TransferServiceTest {
 
     @Test
     void transferWithNonExistentFromCard() {
-
         Long nonExistentCardId = 999L;
         Long userId = testUser.getId();
         BigDecimal transferAmount = new BigDecimal("100.00");
@@ -124,7 +121,6 @@ class TransferServiceTest {
 
     @Test
     void transferWithInactiveFromCard() {
-
         Long userId = testUser.getId();
         BigDecimal transferAmount = new BigDecimal("100.00");
         fromCard.setCardStatus(CardStatus.BLOCKED);
@@ -132,7 +128,6 @@ class TransferServiceTest {
         when(cardRepository.findById(fromCard.getId())).thenReturn(Optional.of(fromCard));
         when(cardRepository.findById(toCard.getId())).thenReturn(Optional.of(toCard));
 
-        // When & Then
         assertThrows(IllegalStateException.class, () ->
                 transferService.transferBetweenCards(fromCard.getId(), toCard.getId(), userId, transferAmount));
     }
@@ -197,7 +192,7 @@ class TransferServiceTest {
     void transferWithInsufficientFunds() {
 
         Long userId = testUser.getId();
-        BigDecimal excessiveAmount = new BigDecimal("1500.00"); // Больше чем баланс
+        BigDecimal excessiveAmount = new BigDecimal("1500.00"); //больше чем баланс
 
         when(cardRepository.findById(fromCard.getId())).thenReturn(Optional.of(fromCard));
         when(cardRepository.findById(toCard.getId())).thenReturn(Optional.of(toCard));
@@ -208,9 +203,8 @@ class TransferServiceTest {
 
     @Test
     void transferWithExactBalance()  {
-
         Long userId = testUser.getId();
-        BigDecimal exactAmount = new BigDecimal("1000.00"); // Равно балансу
+        BigDecimal exactAmount = new BigDecimal("1000.00"); //равно балансу
 
         when(cardRepository.findById(fromCard.getId())).thenReturn(Optional.of(fromCard));
         when(cardRepository.findById(toCard.getId())).thenReturn(Optional.of(toCard));

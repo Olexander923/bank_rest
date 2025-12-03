@@ -14,8 +14,8 @@
         </preConditions>
 
         <insert tableName="users">
-            <column name="username" value="admin"/>
-            <column name="password" value="$2a$10$gr1.B4ok888JLPMHssM71ebUVaNOc27.dIPcOE4VOgL/kCw8bEthq"/>
+            <column name="username" value="adminuser"/>
+            <column name="password" value="$2a$10$blChvcX82mY/nxIe.W8cg..aq9NMtFUFK3J94eHUBDh/E9G/NAL06"/>
             <column name="email" value="admin@bankapp.com"/>
             <column name="role" value="ADMIN"/>
         </insert>

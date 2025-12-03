@@ -4,6 +4,8 @@ import com.example.bankcards.dto.CardCreateRequestDTO;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.entity.User;
+import com.example.bankcards.exception.CardBlockedException;
+import com.example.bankcards.exception.CardExpiredException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.util.CardEncryptionUtil;
@@ -12,7 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.naming.ServiceUnavailableException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -127,10 +131,18 @@ public class CardService {
     /**
      * баланс карты
      */
-    public BigDecimal getCardBalance(Long cardId) {
+    public BigDecimal getCardBalance(Long cardId)  {
         var card = cardRepository.findById(cardId).orElseThrow(() ->
                 new IllegalArgumentException("No such card with id=%s "
                         .formatted(cardId)));
+
+        if (card.getCardStatus() == CardStatus.BLOCKED)
+            throw new CardBlockedException("CCannot get balance for blocked card");
+
+        if (card.getExpireDate().isBefore(LocalDate.now()))
+            throw new CardExpiredException("Card expired!");
+
+
         return card.getBalance();
     }
 
