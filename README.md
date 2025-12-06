@@ -5,10 +5,7 @@ Java 17, PostgreSQL, Spring(boot/security/mvc/data), Hibernate, Docker, Liquibas
 ## Инструкция к запуску
 1. Собрать проект командой mvn clean package
 2. Запустить приложение Docker Compose командой docker-compose up --build
-3. Открыть в браузере http://localhost:8080/menu
-4. Выбрать нужную операцию в панели 
-
-5. выполнить следующие команды:
+3. Выполнить следующие команды:
 
 # Получить токены:
   curl -X POST http://localhost:8080/api/auth/login 
