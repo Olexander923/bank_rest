@@ -27,9 +27,6 @@ class TransferServiceTest {
     private CardRepository cardRepository;
 
     @Mock
-    private CardService cardService;
-
-    @Mock
     private TransactionRepository transactionRepository;
 
     @InjectMocks

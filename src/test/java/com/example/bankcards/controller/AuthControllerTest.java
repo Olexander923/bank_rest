@@ -28,7 +28,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-
 @WebMvcTest(AuthController.class)
 @Import({AdminUserControllerTest.class, GlobalExceptionHandler.class})
 @AutoConfigureMockMvc(addFilters = false)
@@ -48,13 +47,13 @@ public class AuthControllerTest {
     void login_return200() throws Exception {
         Authentication authentication = mock(Authentication.class);
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
-                when(jwtUtils.tokenGeneration(any())).thenReturn("test_token");
+        when(jwtUtils.tokenGeneration(any())).thenReturn("test_token");
 
-          mockMvc.perform(post("/api/auth/login")
-                  .contentType(MediaType.APPLICATION_JSON)
-                          .content("{\"username\":\"testuser\",\"password\":\"ValidPass1@\"}")
-                  .with(csrf()))
-                  .andExpect(MockMvcResultMatchers.status().isOk());
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"testuser\",\"password\":\"ValidPass1@\"}")
+                        .with(csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
@@ -74,7 +73,8 @@ public class AuthControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    @Test//тут ошибка аутентификации
+    @Test
+//тут ошибка аутентификации
     void loginInvalidPassword_return401() throws Exception {
         Authentication authentication = mock(Authentication.class);
         UserDetails userDetails = mock(UserDetails.class);
@@ -94,7 +94,8 @@ public class AuthControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
-    @Test//тут ошибка клиента
+    @Test
+//тут ошибка клиента
     void loginIncorrectPassword_return400() throws Exception {
         Authentication authentication = mock(Authentication.class);
         UserDetails userDetails = mock(UserDetails.class);
@@ -113,7 +114,8 @@ public class AuthControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
-    @Test//ошибка аутентификации
+    @Test
+//ошибка аутентификации
     void loginUserNotExist_return401() throws Exception {
         Authentication authentication = mock(Authentication.class);
         UserDetails userDetails = mock(UserDetails.class);
@@ -132,7 +134,8 @@ public class AuthControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
-    @Test//ошибка клиента
+    @Test
+//ошибка клиента
     void loginUserNotExist_return400() throws Exception {
         Authentication authentication = mock(Authentication.class);
         UserDetails userDetails = mock(UserDetails.class);
@@ -150,8 +153,8 @@ public class AuthControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
-
-    @Test//ошибка клиента
+    @Test
+//ошибка клиента
     void loginEmptyCredentials_return400() throws Exception {
         Authentication authentication = mock(Authentication.class);
         UserDetails userDetails = mock(UserDetails.class);
@@ -166,10 +169,9 @@ public class AuthControllerTest {
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
-                        containsString( "must be exactly min 8 characters")))
+                        containsString("must be exactly min 8 characters")))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
-
 
     @Test
     void loginBlockedAccount_return403() throws Exception {
@@ -189,7 +191,6 @@ public class AuthControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                         .value("This account is blocked!"))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
-
     }
 
     @Test
@@ -245,12 +246,12 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 """ 
-            {
-                "username": "testuser",
-                "email": "test@example.com",
-                "password": "ValidPass1@"
-            }
-            """)
+                                        {
+                                            "username": "testuser",
+                                            "email": "test@example.com",
+                                            "password": "ValidPass1@"
+                                        }
+                                        """)
                         .with(csrf()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$")
                         .exists())
@@ -269,12 +270,12 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 """ 
-            {
-                "username": "testuser",
-                "email": "test@example.com",
-                "password": "password"
-            }
-            """)
+                                        {
+                                            "username": "testuser",
+                                            "email": "test@example.com",
+                                            "password": "password"
+                                        }
+                                        """)
                         .with(csrf()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$")
                         .exists())
@@ -291,12 +292,12 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 """ 
-            {
-                "username": "testuser",
-                "email": "test@example.com",
-                "password": "ValidPass1@"
-            }
-            """)
+                                        {
+                                            "username": "testuser",
+                                            "email": "test@example.com",
+                                            "password": "ValidPass1@"
+                                        }
+                                        """)
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isConflict())
@@ -304,7 +305,8 @@ public class AuthControllerTest {
                         .value("This email already exist!"));
     }
 
-    @Test//тут ошибка клиента
+    @Test
+//тут ошибка клиента
     void registerIncorrectEmailFormat_return400() throws Exception {
         when(userRepository.existsByEmail("test@example.com"))
                 .thenReturn(false);
@@ -313,12 +315,12 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 """ 
-            {
-                "username": "testuser",
-                "email": "test",
-                "password": "ValidPass1@"
-            }
-            """)
+                                        {
+                                            "username": "testuser",
+                                            "email": "test",
+                                            "password": "ValidPass1@"
+                                        }
+                                        """)
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -334,12 +336,12 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 """ 
-            {
-                "username": "test",
-                "email": "test@example.com",
-                "password": "ValidPass1@"
-            }
-            """)
+                                        {
+                                            "username": "test",
+                                            "email": "test@example.com",
+                                            "password": "ValidPass1@"
+                                        }
+                                        """)
                         .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
@@ -353,15 +355,15 @@ public class AuthControllerTest {
         when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
 
         mockMvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                        """ 
-    {
-        "username": "testuser",
-        "email": "test@example.com",
-        "password": "123456789"
-    }
-    """)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(
+                                """ 
+                                        {
+                                            "username": "testuser",
+                                            "email": "test@example.com",
+                                            "password": "123456789"
+                                        }
+                                        """)
                         .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
@@ -378,12 +380,12 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 """ 
-            {
-                "username": "short",
-                "email": "test@example.com",
-                "password": "ValidPass1@"
-            }
-            """)
+                                        {
+                                            "username": "short",
+                                            "email": "test@example.com",
+                                            "password": "ValidPass1@"
+                                        }
+                                        """)
                         .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andDo(print())
@@ -394,12 +396,12 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 """ 
-            {
-                "username": "testuser",
-                "email": "",
-                "password": "ValidPass1@"
-            }
-            """)
+                                        {
+                                            "username": "testuser",
+                                            "email": "",
+                                            "password": "ValidPass1@"
+                                        }
+                                        """)
                         .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
@@ -409,12 +411,12 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 """ 
-            {
-                "username": "testuser",
-                "email": "test@example.com",
-                "password": ""
-            }
-            """)
+                                        {
+                                            "username": "testuser",
+                                            "email": "test@example.com",
+                                            "password": ""
+                                        }
+                                        """)
                         .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message",
@@ -429,12 +431,12 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 """ 
-            {
-                "username": "tes tus-er",
-                "email": "test@example.com",
-                "password": "ValidPass1@"
-            }
-            """)
+                                        {
+                                            "username": "tes tus-er",
+                                            "email": "test@example.com",
+                                            "password": "ValidPass1@"
+                                        }
+                                        """)
                         .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
@@ -459,18 +461,16 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                                 """ 
-            {
-                "username": "testuser",
-                "email": "test@example.com",
-                "password": "ValidPass1@"
-            }
-            """)
+                                        {
+                                            "username": "testuser",
+                                            "email": "test@example.com",
+                                            "password": "ValidPass1@"
+                                        }
+                                        """)
                         .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                         .value("Database error!"));
-
     }
-
 
 }

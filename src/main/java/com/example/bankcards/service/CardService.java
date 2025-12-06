@@ -131,7 +131,7 @@ public class CardService {
     /**
      * баланс карты
      */
-    public BigDecimal getCardBalance(Long cardId)  {
+    public BigDecimal getCardBalance(Long cardId) {
         var card = cardRepository.findById(cardId).orElseThrow(() ->
                 new IllegalArgumentException("No such card with id=%s "
                         .formatted(cardId)));
@@ -141,7 +141,6 @@ public class CardService {
 
         if (card.getExpireDate().isBefore(LocalDate.now()))
             throw new CardExpiredException("Card expired!");
-
 
         return card.getBalance();
     }

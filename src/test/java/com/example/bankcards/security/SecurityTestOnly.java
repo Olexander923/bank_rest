@@ -45,14 +45,14 @@ public class SecurityTestOnly {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "cardNumber": "4000000000000002",
-                "expireDate": "2028-12-31",
-                "balance": 5000.00,
-                "userId": 1,
-                "cardStatus": "ACTIVE"
-            }
-            """))
+                                {
+                                    "cardNumber": "4000000000000002",
+                                    "expireDate": "2028-12-31",
+                                    "balance": 5000.00,
+                                    "userId": 1,
+                                    "cardStatus": "ACTIVE"
+                                }
+                                """))
                 .andExpect(status().isForbidden());
 
     }

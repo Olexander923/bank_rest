@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AdminUserController.class)
-@Import({AdminUserControllerTestConfig.class,GlobalExceptionHandler.class})
+@Import({AdminUserControllerTestConfig.class, GlobalExceptionHandler.class})
 @WithMockUser(roles = "ADMIN")
 public class AdminUserControllerTest {
     @MockitoBean
@@ -66,43 +66,43 @@ public class AdminUserControllerTest {
         User user = new User("testuser", "ValidPass1@", "test@example.com", Role.ADMIN);
         user.setId(1L);
 
-        when(userService.createUser(eq("testuser"), eq("ValidPass1@"), eq("test@example.com"),eq(Role.ADMIN)))
+        when(userService.createUser(eq("testuser"), eq("ValidPass1@"), eq("test@example.com"), eq(Role.ADMIN)))
                 .thenReturn(user);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/users")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-            {
-                "username": "testuser",
-                "password": "ValidPass1@",
-                "email": "test@example.com",
-                "role": "ADMIN"           
-            }
-            """))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "username": "testuser",
+                                    "password": "ValidPass1@",
+                                    "email": "test@example.com",
+                                    "role": "ADMIN"           
+                                }
+                                """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.username").value("testuser"))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
-                        .andExpect(jsonPath("$.role").value("ADMIN"));
-                 verify(userService,times(1))
-                         .createUser(eq("testuser"), eq("ValidPass1@"), eq("test@example.com"),eq(Role.ADMIN));
+                .andExpect(jsonPath("$.role").value("ADMIN"));
+        verify(userService, times(1))
+                .createUser(eq("testuser"), eq("ValidPass1@"), eq("test@example.com"), eq(Role.ADMIN));
 
     }
 
     @Test
     void createUser_return400_invalidPassword() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/users")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON) // передаю слишком короткий пароль
-                .content("""
-            {
-                "username": "testuser",
-                "password": "pass", 
-                "email": "test@example.com",
-                "role": "ADMIN"           
-            }
-            """))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON) // передаю слишком короткий пароль
+                        .content("""
+                                {
+                                    "username": "testuser",
+                                    "password": "pass", 
+                                    "email": "test@example.com",
+                                    "role": "ADMIN"           
+                                }
+                                """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message")
                         .value("Password too weak! Password must contain lowercase,uppercase, digit, special char @#$%, 8-16 chars"));
@@ -114,20 +114,20 @@ public class AdminUserControllerTest {
         User user = new User("testuser", "password", "test@example.com", Role.ADMIN);
         user.setId(1L);
 
-        when(userService.createUser(eq("testuser"), eq("ValidPass1@"), eq("test@example.com"),eq(Role.ADMIN)))
+        when(userService.createUser(eq("testuser"), eq("ValidPass1@"), eq("test@example.com"), eq(Role.ADMIN)))
                 .thenThrow(new UserNameAlreadyExistException("User with this username already exist!"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/users")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-            {
-                "username": "testuser",
-                "password": "ValidPass1@",
-                "email": "test@example.com",
-                "role": "ADMIN"           
-            }
-            """))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "username": "testuser",
+                                    "password": "ValidPass1@",
+                                    "email": "test@example.com",
+                                    "role": "ADMIN"           
+                                }
+                                """))
                 .andExpect(status().isConflict())
                 .andDo(print())
                 .andExpect(jsonPath("$.message")
@@ -147,17 +147,17 @@ public class AdminUserControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "username": "testuser",
-                "userId": 1,
-                "email": "test@example.com"
-            }
-            """))
+                                {
+                                    "username": "testuser",
+                                    "userId": 1,
+                                    "email": "test@example.com"
+                                }
+                                """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.username").value("testuser"))
                 .andExpect(jsonPath("$.email").value("test@example.com"));
-        verify(userService,times(1))
+        verify(userService, times(1))
                 .updateUser(eq(1L), eq("testuser"), eq("test@example.com"));
 
     }
@@ -171,12 +171,12 @@ public class AdminUserControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "username": "",
-                "userId": 1,
-                "email": "test@example.com"
-            }
-            """))
+                                {
+                                    "username": "",
+                                    "userId": 1,
+                                    "email": "test@example.com"
+                                }
+                                """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("User cannot be blank"));
     }
@@ -193,12 +193,12 @@ public class AdminUserControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "username": "testuser",
-                "userId": 1,
-                "email": "test@example.com"
-            }
-            """))
+                                {
+                                    "username": "testuser",
+                                    "userId": 1,
+                                    "email": "test@example.com"
+                                }
+                                """))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message")
                         .value("User with this username already exist!"));
@@ -216,12 +216,12 @@ public class AdminUserControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "username": "testuser",
-                "userId": 1,
-                "email": "test@example.com"
-            }
-            """))
+                                {
+                                    "username": "testuser",
+                                    "userId": 1,
+                                    "email": "test@example.com"
+                                }
+                                """))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message")
                         .value("User with this email already exist!"));
@@ -239,12 +239,12 @@ public class AdminUserControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "username": "testuser",
-                "userId": 999,
-                "email": "test@example.com"
-            }
-            """))
+                                {
+                                    "username": "testuser",
+                                    "userId": 999,
+                                    "email": "test@example.com"
+                                }
+                                """))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("User with this id not found!"));
     }
@@ -258,15 +258,15 @@ public class AdminUserControllerTest {
                 .thenReturn(user);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/admin/users/1")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-            {
-                "username": "testuser",
-                "userId": 1,
-                "email": "invalid-email"
-            }
-            """))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "username": "testuser",
+                                    "userId": 1,
+                                    "email": "invalid-email"
+                                }
+                                """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Email should be valid"));
     }
@@ -277,18 +277,19 @@ public class AdminUserControllerTest {
         user.setId(1L);
 
         when(userService.updateUser(eq(1L), eq("testuser"), eq("test@example.com")))
-                .thenReturn(user);;
+                .thenReturn(user);
+        ;
 
         mockMvc.perform(put("/api/admin/users/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "username": "te",
-                "userId": 1,
-                "email": "test@example.com"
-            }
-            """))
+                                {
+                                    "username": "te",
+                                    "userId": 1,
+                                    "email": "test@example.com"
+                                }
+                                """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message")
                         .value("Username must be between 3 and 50 characters"));
@@ -300,12 +301,12 @@ public class AdminUserControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                
-                "userId": 1,
-                "email": "test@example.com"
-            }
-            """))
+                                {
+                                
+                                    "userId": 1,
+                                    "email": "test@example.com"
+                                }
+                                """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("User cannot be blank"));
     }
@@ -314,23 +315,23 @@ public class AdminUserControllerTest {
     @Test
     void deleteUsers_return204() throws Exception {
         mockMvc.perform(delete("/api/admin/users/1")
-                .with(csrf()))
+                        .with(csrf()))
                 .andExpect(status().isNoContent());
     }
 
-    @Test //проверка что api отвечает не неправильный формат id
-    void deleteUsers_API_return400() throws Exception{
+    @Test//проверка что api отвечает не неправильный формат id
+    void deleteUsers_API_return400() throws Exception {
         mockMvc.perform(delete("/api/admin/users/gher")
-                .with(csrf()))
+                        .with(csrf()))
                 .andExpect(status().isBadRequest());
     }
 
     @Test//проверка что id нет в бд
     void deleteUsers_return404() throws Exception {
         doThrow(new UserNotFoundException("User with this id not found!")).when(userService)
-                        .deleteUser(9999L);
+                .deleteUser(9999L);
         mockMvc.perform(delete("/api/admin/users/9999")
-                .with(csrf()))
+                        .with(csrf()))
                 .andExpect(status().isNotFound());
     }
 }

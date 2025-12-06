@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@DisplayName("тестирование логики UserService")
+@DisplayName("test logic UserService")
 class UserServiceTest {
     @Mock
     private UserRepository userRepository;

@@ -30,11 +30,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.naming.ServiceUnavailableException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -56,11 +54,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserCardControllerTest {
 
     @MockitoBean
-    private  CardService cardService;
+    private CardService cardService;
     @MockitoBean
     private TransferService transferService;
     @MockitoBean
-    private  CardMapper cardMapper;
+    private CardMapper cardMapper;
     @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     @MockitoBean
@@ -205,6 +203,7 @@ public class UserCardControllerTest {
                 .andExpect(status().isBadRequest());
 
     }
+
     @Test
     void getCardBalance_API_return400() throws Exception {
         User user = new User("testuser", "ValidPass1@", "test@example.com", Role.USER);
@@ -279,7 +278,7 @@ public class UserCardControllerTest {
         requestDTO.setToCardId(2L);
         requestDTO.setAmount(new BigDecimal("3500"));
 
-        doNothing().when(transferService).transferBetweenCards(eq(1L),eq(2L),eq(1L),eq(new BigDecimal("3500")));
+        doNothing().when(transferService).transferBetweenCards(eq(1L), eq(2L), eq(1L), eq(new BigDecimal("3500")));
         when(cardService.getCardById(1L)).thenReturn(Optional.of(card));
         mockMvc.perform(post("/api/user/cards/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -306,7 +305,7 @@ public class UserCardControllerTest {
         requestDTO.setAmount(new BigDecimal("3500"));
 
         doThrow(new InsufficientFundsException("Insufficient funds."))
-                .when(transferService).transferBetweenCards(eq(1L),eq(2L),eq(1L),eq(new BigDecimal("3500")));
+                .when(transferService).transferBetweenCards(eq(1L), eq(2L), eq(1L), eq(new BigDecimal("3500")));
         when(cardService.getCardById(1L)).thenReturn(Optional.of(card));
         mockMvc.perform(post("/api/user/cards/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -333,7 +332,7 @@ public class UserCardControllerTest {
         requestDTO.setAmount(new BigDecimal("3500"));
 
         doThrow(new CardBlockedException("Card blocked"))
-                .when(transferService).transferBetweenCards(eq(1L),eq(2L),eq(1L),eq(new BigDecimal("3500")));
+                .when(transferService).transferBetweenCards(eq(1L), eq(2L), eq(1L), eq(new BigDecimal("3500")));
         when(cardService.getCardById(1L)).thenReturn(Optional.of(blockedCard));
         mockMvc.perform(post("/api/user/cards/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -360,7 +359,7 @@ public class UserCardControllerTest {
         requestDTO.setAmount(new BigDecimal("3500"));
 
         doThrow(new CardExpiredException("Card is expired"))
-                .when(transferService).transferBetweenCards(eq(1L),eq(2L),eq(1L),eq(new BigDecimal("3500")));
+                .when(transferService).transferBetweenCards(eq(1L), eq(2L), eq(1L), eq(new BigDecimal("3500")));
         when(cardService.getCardById(1L)).thenReturn(Optional.of(expiredCard));
         mockMvc.perform(post("/api/user/cards/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -387,7 +386,7 @@ public class UserCardControllerTest {
         requestDTO.setAmount(new BigDecimal("3500"));
 
         doThrow(new ValidationException("Card balance cannot be negative!"))
-                .when(transferService).transferBetweenCards(eq(1L),eq(2L),eq(1L),eq(new BigDecimal("3500")));
+                .when(transferService).transferBetweenCards(eq(1L), eq(2L), eq(1L), eq(new BigDecimal("3500")));
         when(cardService.getCardById(1L)).thenReturn(Optional.of(card));
         mockMvc.perform(post("/api/user/cards/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -414,7 +413,7 @@ public class UserCardControllerTest {
         requestDTO.setAmount(new BigDecimal("3500"));
 
         doThrow(new InsufficientFundsException("Not enough money!"))
-                .when(transferService).transferBetweenCards(eq(1L),eq(2L),eq(1L),eq(new BigDecimal("3500")));
+                .when(transferService).transferBetweenCards(eq(1L), eq(2L), eq(1L), eq(new BigDecimal("3500")));
         when(cardService.getCardById(1L)).thenReturn(Optional.of(card));
         mockMvc.perform(post("/api/user/cards/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -441,7 +440,7 @@ public class UserCardControllerTest {
         requestDTO.setAmount(new BigDecimal("3500"));
 
         doThrow(new IllegalStateException("Can not transfer to the same card!"))
-                .when(transferService).transferBetweenCards(eq(1L),eq(1L),eq(1L),eq(new BigDecimal("3500")));
+                .when(transferService).transferBetweenCards(eq(1L), eq(1L), eq(1L), eq(new BigDecimal("3500")));
         when(cardService.getCardById(1L)).thenReturn(Optional.of(card));
         mockMvc.perform(post("/api/user/cards/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -468,7 +467,7 @@ public class UserCardControllerTest {
         requestDTO.setAmount(new BigDecimal("100000000.00"));
 
         doThrow(new IllegalStateException("Transfer amount exceeds maximum limit."))
-                .when(transferService).transferBetweenCards(eq(1L),eq(2L),eq(1L),eq(new BigDecimal("100000000.00")));
+                .when(transferService).transferBetweenCards(eq(1L), eq(2L), eq(1L), eq(new BigDecimal("100000000.00")));
         when(cardService.getCardById(1L)).thenReturn(Optional.of(card));
         mockMvc.perform(post("/api/user/cards/transfer")
                         .contentType(MediaType.APPLICATION_JSON)

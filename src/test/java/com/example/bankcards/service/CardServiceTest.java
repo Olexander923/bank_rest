@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import javax.naming.ServiceUnavailableException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,7 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@DisplayName("тесты логики 'CardService'")
+@DisplayName("tests logic 'CardService'")
 class CardServiceTest {
     @Mock
     private UserRepository userRepository;
@@ -41,7 +40,7 @@ class CardServiceTest {
     private CardEncryptionUtil cardEncryptionUtil;
 
     @InjectMocks
-    private CardService cardService; // РЕАЛЬНЫЙ сервис
+    private CardService cardService;
 
     @BeforeEach
     void setUp() {
@@ -231,11 +230,12 @@ class CardServiceTest {
     }
 
     @Test
-    void getCardBalanceWithExistingCard() throws ServiceUnavailableException {
+    void getCardBalanceWithExistingCard()  {
         BigDecimal expectedBalance = new BigDecimal("1500.00");
         Card card = new Card();
         card.setId(1L);
         card.setBalance(expectedBalance);
+        card.setExpireDate(LocalDate.now().plusYears(1));
         when(cardRepository.findById(1L)).thenReturn(Optional.of(card));
         BigDecimal result = cardService.getCardBalance(1L);
         assertEquals(expectedBalance, result);

@@ -38,9 +38,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
 @WithMockUser(roles = "ADMIN")
 public class AdminCardControllerTestsWeb {
-    @MockitoBean private CardService cardService;
-    @MockitoBean private CardMapper cardMapper;
-    @Autowired private MockMvc mockMvc;
+    @MockitoBean
+    private CardService cardService;
+    @MockitoBean
+    private CardMapper cardMapper;
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
     void createCard_return200() throws Exception {
@@ -83,14 +86,14 @@ public class AdminCardControllerTestsWeb {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "cardNumber": "4000000000000002",
-                "expireDate": "2028-12-31",
-                "balance": 5000.00,
-                "userId": 1,
-                "cardStatus": "ACTIVE"
-            }
-            """))
+                                {
+                                    "cardNumber": "4000000000000002",
+                                    "expireDate": "2028-12-31",
+                                    "balance": 5000.00,
+                                    "userId": 1,
+                                    "cardStatus": "ACTIVE"
+                                }
+                                """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1));
         verify(cardService, times(1))
@@ -127,14 +130,14 @@ public class AdminCardControllerTestsWeb {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "cardNumber": "4000000000003212",
-                "expireDate": "2028-12-31",
-                "balance": 5000.00,
-                "userId": 1,
-                "cardStatus": "ACTIVE"
-            }
-            """))
+                                {
+                                    "cardNumber": "4000000000003212",
+                                    "expireDate": "2028-12-31",
+                                    "balance": 5000.00,
+                                    "userId": 1,
+                                    "cardStatus": "ACTIVE"
+                                }
+                                """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Invalid card number!"));
         verify(cardService, times(1))
@@ -151,14 +154,14 @@ public class AdminCardControllerTestsWeb {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "cardNumber": "4000000000003212",
-                "expireDate": "2028-12-31",
-                "balance": 5000.00,
-                "userId": 999,
-                "cardStatus": "ACTIVE"
-            }
-            """))
+                                {
+                                    "cardNumber": "4000000000003212",
+                                    "expireDate": "2028-12-31",
+                                    "balance": 5000.00,
+                                    "userId": 999,
+                                    "cardStatus": "ACTIVE"
+                                }
+                                """))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message")
                         .value("User with this id not found"));
@@ -167,124 +170,124 @@ public class AdminCardControllerTestsWeb {
 
     }
 
-        @Test
-        void createCardWithNegativeBalance_return400() throws Exception {
-            when(cardService.createCard(any(CardCreateRequestDTO.class), eq(1L)))
-                    .thenThrow(new ValidationException("Card balance cannot be negative!"));
+    @Test
+    void createCardWithNegativeBalance_return400() throws Exception {
+        when(cardService.createCard(any(CardCreateRequestDTO.class), eq(1L)))
+                .thenThrow(new ValidationException("Card balance cannot be negative!"));
 
-            mockMvc.perform(post("/api/admin/cards")
-                            .with(csrf())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-            {
-                "cardNumber": "4000000000000002",
-                "expireDate": "2028-12-31",
-                "balance": -5000.00,
-                "userId": 1,
-                "cardStatus": "ACTIVE"
-            }
-            """))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message")
-                            .value("Card balance cannot be negative!"));
-            verify(cardService, times(1))
-                    .createCard(any(CardCreateRequestDTO.class), eq(1L));
-        }
+        mockMvc.perform(post("/api/admin/cards")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "cardNumber": "4000000000000002",
+                                    "expireDate": "2028-12-31",
+                                    "balance": -5000.00,
+                                    "userId": 1,
+                                    "cardStatus": "ACTIVE"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("Card balance cannot be negative!"));
+        verify(cardService, times(1))
+                .createCard(any(CardCreateRequestDTO.class), eq(1L));
+    }
 
-        @Test
-        void createCardWithExpiredDate_return400() throws Exception {
-            when(cardService.createCard(any(CardCreateRequestDTO.class), eq(1L)))
-                    .thenThrow(new ValidationException("Card is expired!"));
+    @Test
+    void createCardWithExpiredDate_return400() throws Exception {
+        when(cardService.createCard(any(CardCreateRequestDTO.class), eq(1L)))
+                .thenThrow(new ValidationException("Card is expired!"));
 
-            mockMvc.perform(post("/api/admin/cards")
-                            .with(csrf())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-            {
-                "cardNumber": "4000000000003212",
-                "expireDate": "2024-12-31",
-                "balance": 5000.00,
-                "userId": 1,
-                "cardStatus": "ACTIVE"
-            }
-            """))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Card is expired!"));
-            verify(cardService, times(1)).createCard(any(CardCreateRequestDTO.class), eq(1L));
-        }
+        mockMvc.perform(post("/api/admin/cards")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "cardNumber": "4000000000003212",
+                                    "expireDate": "2024-12-31",
+                                    "balance": 5000.00,
+                                    "userId": 1,
+                                    "cardStatus": "ACTIVE"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Card is expired!"));
+        verify(cardService, times(1)).createCard(any(CardCreateRequestDTO.class), eq(1L));
+    }
 
-        @Test
-        void createCardWithWrongExpireDate_return400() throws Exception {
-            mockMvc.perform(post("/api/admin/cards")
-                            .with(csrf())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-            {
-                "cardNumber": "4000000000003212",
-                "expireDate": "2028/12/31",
-                "balance": 5000.00,
-                "userId": 1,
-                "cardStatus": "ACTIVE"
-            }
-            """))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Invalid date format. Use YYYY-MM-DD."));
-        }
+    @Test
+    void createCardWithWrongExpireDate_return400() throws Exception {
+        mockMvc.perform(post("/api/admin/cards")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "cardNumber": "4000000000003212",
+                                    "expireDate": "2028/12/31",
+                                    "balance": 5000.00,
+                                    "userId": 1,
+                                    "cardStatus": "ACTIVE"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid date format. Use YYYY-MM-DD."));
+    }
 
-        @Test
-        void createCardWithoutJsonField() throws Exception {
-            mockMvc.perform(post("/api/admin/cards")
-                            .with(csrf())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-            {
-                "cardNumber": "4000000000003212",
-                "expireDate": "2028-12-31",
-    
-                "userId": 1,
-                "cardStatus": "ACTIVE"
-            }
-            """))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Balance is required"));
-        }
+    @Test
+    void createCardWithoutJsonField() throws Exception {
+        mockMvc.perform(post("/api/admin/cards")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "cardNumber": "4000000000003212",
+                                    "expireDate": "2028-12-31",
+                                
+                                    "userId": 1,
+                                    "cardStatus": "ACTIVE"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Balance is required"));
+    }
 
-        @Test
-        void createCard_tooLongCardNumber_return400() throws Exception {
-            mockMvc.perform(post("/api/admin/cards")
-                            .with(csrf())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-            {
-                "cardNumber": "400000000000000002",
-                "expireDate": "2028-12-31",
-                "balance": 5000.00,
-                "userId": 1,
-                "cardStatus": "ACTIVE"
-            }
-            """))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message")
-                            .value("The card number must be exactly 16 digits long!"));
-        }
+    @Test
+    void createCard_tooLongCardNumber_return400() throws Exception {
+        mockMvc.perform(post("/api/admin/cards")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "cardNumber": "400000000000000002",
+                                    "expireDate": "2028-12-31",
+                                    "balance": 5000.00,
+                                    "userId": 1,
+                                    "cardStatus": "ACTIVE"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value("The card number must be exactly 16 digits long!"));
+    }
 
     @Test
     void createCardWithDuplication_return409() throws Exception {
-        when(cardService.createCard(any(CardCreateRequestDTO.class),eq(1L)))
+        when(cardService.createCard(any(CardCreateRequestDTO.class), eq(1L)))
                 .thenThrow(new CardAlreadyExistException("Card with this number already exist!"));
 
         mockMvc.perform(post("/api/admin/cards")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-            {
-                "cardNumber": "4000000000000002",
-                "expireDate": "2024-12-31",
-                "balance": 5000.00,
-                "userId": 1,
-                "cardStatus": "ACTIVE"
-            }
-            """))
+                                {
+                                    "cardNumber": "4000000000000002",
+                                    "expireDate": "2024-12-31",
+                                    "balance": 5000.00,
+                                    "userId": 1,
+                                    "cardStatus": "ACTIVE"
+                                }
+                                """))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message")
                         .value("Card with this number already exist!"));
@@ -297,19 +300,21 @@ public class AdminCardControllerTestsWeb {
                 .andExpect(status().isNoContent());
     }
 
-    @Test //проверка что api отвечает не неправильный формат id
-    void deleteCard_API_return400() throws Exception{
+    @Test
+        //проверка что api отвечает не неправильный формат id
+    void deleteCard_API_return400() throws Exception {
         mockMvc.perform(delete("/api/admin/cards/gh"))
                 .andExpect(status().isBadRequest());
     }
 
-    @Test//проверка что id нет в бд
+    @Test
+//проверка что id нет в бд
     void deleteCard_return404() throws Exception {
         doThrow(new CardNotFoundException("Card not found!"))
                 .when(cardService)
                 .deleteCard(999L);
-       mockMvc.perform(delete("/api/admin/cards/999"))
-               .andExpect(status().isNotFound());
+        mockMvc.perform(delete("/api/admin/cards/999"))
+                .andExpect(status().isNotFound());
     }
 
     @DisplayName("method 'blockCard' tests")
@@ -396,7 +401,7 @@ public class AdminCardControllerTestsWeb {
                 new BigDecimal("3000.00"),
                 user
         );
-        List<Card> mockCards = List.of(card1,card2);
+        List<Card> mockCards = List.of(card1, card2);
         CardResponseDTO mockResponseDTO = new CardResponseDTO();
         mockResponseDTO.setId(1L);
         mockResponseDTO.setUserId(1L);
@@ -411,7 +416,7 @@ public class AdminCardControllerTestsWeb {
         mockMvc.perform(get("/api/admin/cards"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(2))
-                        .andExpect(jsonPath("$[0].id").value(1));
+                .andExpect(jsonPath("$[0].id").value(1));
 
     }
 
