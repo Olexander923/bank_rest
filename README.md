@@ -53,6 +53,16 @@ curl -X POST http://localhost:8080/api/user/cards/transfer
 curl -H "Authorization: Bearer $USER_TOKEN" http://localhost:8080/api/user/cards/1/balance  
 curl -H "Authorization: Bearer $USER_TOKEN" http://localhost:8080/api/user/cards/2/balance  
 
+# Тестирование конкурентности/запуск 3 переводов одновременно
+USER_TOKEN="вставь_токен"
+for i in 1 2 3; do
+curl -X POST http://localhost:8080/api/user/cards/transfer \
+-H "Authorization: Bearer $USER_TOKEN" \
+-H "Content-Type: application/json" \
+-d "{\"fromCardId\":1,\"toCardId\":2,\"amount\":${i}0.00}" &
+sleep 0.05
+done
+wait
 
 ## Admin: блокировка и активация карт
 # Блокировка

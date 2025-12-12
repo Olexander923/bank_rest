@@ -43,7 +43,7 @@ public class UserCardController {
     private final CardMapper cardMapper;
 
     @GetMapping
-    //для получения всех карт пользователя + валидация паганации
+    //для получения всех карт пользователя + валидация и паганации
     public ResponseEntity<Page<CardResponseDTO>> getUserCards(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Min(0) @RequestParam(defaultValue = "0") int page,

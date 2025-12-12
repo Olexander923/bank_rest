@@ -194,11 +194,12 @@ class CardServiceTest {
 
     @Test
     void getAllCards() {
-        List<Card> expectedCards = Arrays.asList(new Card(), new Card());
-        when(cardRepository.findAll()).thenReturn(expectedCards);
-        List<Card> result = cardService.getAllCards();
-        assertEquals(expectedCards, result);
-        verify(cardRepository).findAll();
+        Pageable pageable = PageRequest.of(0,10);
+        Page<Card> expectedPage = new PageImpl<>(Arrays.asList(new Card(),new Card()));
+        when(cardRepository.findAll(pageable)).thenReturn(expectedPage);
+        Page<Card> result = cardService.getAllCards(pageable);
+        assertEquals(expectedPage, result);
+        verify(cardRepository).findAll(pageable);
     }
 
     @Test

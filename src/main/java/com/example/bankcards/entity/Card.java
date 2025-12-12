@@ -1,27 +1,23 @@
 package com.example.bankcards.entity;
-import com.example.bankcards.util.CardEncryptionUtil;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-
-@Getter
-@Setter
+@Data
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 @NoArgsConstructor
 @Entity
 @Table(name = "card")
 public class Card {
-    @Version
-    private Long version;
+//    @Version
+//    private Long version;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 255, nullable = false)
+    @Column(length = 255, nullable = false,unique = true)
     private String cardNumber;
 
     @Column(name = "expire_date")
@@ -45,5 +41,4 @@ public class Card {
         this.balance = balance;
         this.user = user;
     }
-
 }

@@ -107,11 +107,10 @@ public class CardService {
     }
 
     /**
-     * видеть все карты(только admin)
+     * видеть все карты(только admin) + паганация
      */
-    public List<Card> getAllCards() {
-        List<Card> allCards = cardRepository.findAll();
-        return allCards;
+    public Page<Card> getAllCardsByStatus(CardStatus status, Pageable pageable) {
+        return cardRepository.findByCardStatus(status,pageable);
     }
 
     /**
@@ -122,10 +121,24 @@ public class CardService {
     }
 
     /**
+     * просмотреть все карты вообще + паганация
+     */
+    public Page<Card> getAllCards(Pageable pageable) {
+        return cardRepository.findAll(pageable);
+    }
+
+    /**
      * конкретная карта
      */
     public Optional<Card> getCardById(Long cardId) {
         return cardRepository.findById(cardId);
+    }
+
+    /**
+     * получение всех карт с истекающим сроком, с паганацией(только admin)
+     */
+    public Page<Card> getCardsWithExpiringDateBefore(LocalDate date,Pageable pageable){
+        return cardRepository.findByExpireDateBefore(date, pageable);
     }
 
     /**

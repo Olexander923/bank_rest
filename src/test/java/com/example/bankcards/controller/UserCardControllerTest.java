@@ -101,14 +101,14 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card1 = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2028, 12, 31),
                 CardStatus.ACTIVE,
                 new BigDecimal("5000.00"),
                 user
         );
         Card card2 = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2028, 12, 31),
                 CardStatus.ACTIVE,
                 new BigDecimal("3000.00"),
@@ -153,7 +153,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2028, 12, 31),
                 CardStatus.ACTIVE,
                 new BigDecimal("5000.00"),
@@ -171,7 +171,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2028, 12, 31),
                 CardStatus.ACTIVE,
                 new BigDecimal("5000.00"),
@@ -190,7 +190,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card blockedCard = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2028, 12, 31),
                 CardStatus.BLOCKED,
                 new BigDecimal("5000.00"),
@@ -210,7 +210,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2028, 12, 31),
                 CardStatus.ACTIVE,
                 new BigDecimal("5000.00"),
@@ -229,7 +229,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2028, 12, 31),
                 CardStatus.ACTIVE,
                 new BigDecimal("5000.00"),
@@ -248,7 +248,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2021, 12, 31),
                 CardStatus.EXPIRED,
                 new BigDecimal("5000.00"),
@@ -267,7 +267,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2021, 12, 31),
                 CardStatus.ACTIVE,
                 new BigDecimal("5000.00"),
@@ -293,7 +293,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2021, 12, 31),
                 CardStatus.ACTIVE,
                 new BigDecimal("5000.00"),
@@ -320,7 +320,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card blockedCard = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2021, 12, 31),
                 CardStatus.BLOCKED,
                 new BigDecimal("5000.00"),
@@ -347,7 +347,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card expiredCard = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2021, 12, 31),
                 CardStatus.EXPIRED,
                 new BigDecimal("5000.00"),
@@ -374,7 +374,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2021, 12, 31),
                 CardStatus.EXPIRED,
                 new BigDecimal("-5000.00"),
@@ -401,7 +401,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2021, 12, 31),
                 CardStatus.EXPIRED,
                 new BigDecimal("0.00"),
@@ -428,7 +428,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2021, 12, 31),
                 CardStatus.EXPIRED,
                 new BigDecimal("5000.00"),
@@ -455,7 +455,7 @@ public class UserCardControllerTest {
         user.setId(1L);
 
         Card card = new Card(
-                "encrypted_number",
+                "400000******0002",
                 LocalDate.of(2021, 12, 31),
                 CardStatus.EXPIRED,
                 new BigDecimal("150000000000.00"),
@@ -475,4 +475,6 @@ public class UserCardControllerTest {
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isBadRequest());
     }
+
+
 }

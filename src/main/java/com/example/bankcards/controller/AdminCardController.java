@@ -3,21 +3,19 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.CardCreateRequestDTO;
 import com.example.bankcards.dto.CardResponseDTO;
 import com.example.bankcards.entity.Card;
+import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.service.CardService;
 import com.example.bankcards.util.CardMapper;
-import com.example.bankcards.util.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDate;
 
 /**
  * для ADMIN (управление картами)
@@ -61,13 +59,26 @@ public class AdminCardController {
         return ResponseEntity.ok(cardMapper.toDTO(card));
     }
 
+    @GetMapping("/expiring")
+    public ResponseEntity<Page<CardResponseDTO>> getAllExpiringDateCards(//можно менять дату для фильтрации
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            Pageable pageable
+            ) {
+        Page<Card> cards = cardService.getCardsWithExpiringDateBefore(date, pageable);
+        return ResponseEntity.ok(cards.map(cardMapper::toDTO));
+
+    }
 
     @GetMapping
-    public ResponseEntity<List<CardResponseDTO>> getAllCards() {
-        List<Card> cards = cardService.getAllCards();
-        List<CardResponseDTO> cardDTOs = cards.stream()
-                .map(cardMapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(cardDTOs);
+    public ResponseEntity<Page<CardResponseDTO>> getAllCards(
+            Pageable pageable,
+            @RequestParam(required = false) CardStatus status) {
+        Page<Card> cards = (status != null)
+            ? cardService.getAllCardsByStatus(status,pageable):cardService.getAllCards(pageable);
+        return ResponseEntity.ok(cards.map(cardMapper::toDTO));
+        }
     }
-}
+
+
+
+

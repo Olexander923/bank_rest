@@ -15,6 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -402,6 +405,7 @@ public class AdminCardControllerTestsWeb {
                 user
         );
         List<Card> mockCards = List.of(card1, card2);
+        Page<Card> mockPage = new PageImpl<>(mockCards);
         CardResponseDTO mockResponseDTO = new CardResponseDTO();
         mockResponseDTO.setId(1L);
         mockResponseDTO.setUserId(1L);
@@ -410,13 +414,15 @@ public class AdminCardControllerTestsWeb {
         mockResponseDTO.setCardStatus(CardStatus.ACTIVE);
         mockResponseDTO.setBalance(new BigDecimal("5000.00"));
 
-        when(cardService.getAllCards()).thenReturn(mockCards);
+        when(cardService.getAllCards(any(Pageable.class))).thenReturn(mockPage);
         when(cardMapper.toDTO(any(Card.class))).thenReturn(mockResponseDTO);
 
-        mockMvc.perform(get("/api/admin/cards"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1));
+        mockMvc.perform(get("/api/admin/cards")
+                .param("page", "0")
+                .param("size", "10"))
+            .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.size()").value(2)) // ← content для Page
+                .andExpect(jsonPath("$.content[0].id").value(1));
 
     }
 

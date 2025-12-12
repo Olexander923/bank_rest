@@ -22,7 +22,10 @@ spring:
 
 logging:
   level:
+    org.springframework.transaction: DEBUG
+    org.hibernate.sql: DEBUG
     org.hibernate: OFF
+    org.hibernate.type.descriptor.sql: TRACE
     liquibase: OFF
     root: INFO
 
