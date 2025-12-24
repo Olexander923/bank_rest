@@ -51,10 +51,9 @@ public class UserCardController {
         Pageable pageable = PageRequest.of(page, size);
         Long userId = userDetails.getUserId();
         Page<Card> cards = cardService.getUserCards(userId, pageable);
-        Page<CardResponseDTO> dtoPage = cards.map(cardMapper::toDTO);
+        Page<CardResponseDTO> dtoPage = cards.map(cardMapper::cardToDTO);
         return ResponseEntity.ok(dtoPage);
     }
-
 
     @GetMapping("{cardId}/balance")
     public ResponseEntity<BigDecimal> getCardBalance(
@@ -69,7 +68,6 @@ public class UserCardController {
         BigDecimal balance = cardService.getCardBalance(cardId);
         return ResponseEntity.ok(balance);
     }
-
 
     @PostMapping("/transfer")
     public ResponseEntity<Void> transfer(

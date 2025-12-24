@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class CardMapper {
     private final CardEncryptionUtil cardEncryptionUtil;
 
-    public CardResponseDTO toDTO(Card card) {
+    public CardResponseDTO cardToDTO(Card card) {
         String originalNumber = cardEncryptionUtil.decrypt(card.getCardNumber());
         String masked = "**** **** **** " + originalNumber.substring(originalNumber.length() - 4);
 

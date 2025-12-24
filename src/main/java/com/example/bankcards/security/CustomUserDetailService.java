@@ -1,5 +1,6 @@
 package com.example.bankcards.security;
 
+import com.example.bankcards.entity.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.util.CustomUserDetails;
@@ -19,6 +20,7 @@ public class CustomUserDetailService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
@@ -28,7 +30,8 @@ public class CustomUserDetailService implements UserDetailsService {
                 user.getId(),
                 user.getUsername(),
                 user.getPassword(),
-                getAuthorities(user)
+                getAuthorities(user),
+                user.getRole()
         );
     }
 

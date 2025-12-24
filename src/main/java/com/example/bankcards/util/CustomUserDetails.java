@@ -1,5 +1,6 @@
 package com.example.bankcards.util;
 
+import com.example.bankcards.entity.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,8 +13,14 @@ public class CustomUserDetails implements UserDetails {
     private final String username;
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
+    private final Role role;
+
+    public Role getRole() {
+        return role;
+    }
 
     public Long getUserId() {return userId;}
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

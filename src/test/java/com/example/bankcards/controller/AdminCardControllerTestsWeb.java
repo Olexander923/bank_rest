@@ -72,7 +72,7 @@ public class AdminCardControllerTestsWeb {
 
         when(cardService.createCard(any(CardCreateRequestDTO.class), eq(1L)))
                 .thenReturn(mockCard);
-        when(cardMapper.toDTO(any())).thenAnswer(invocation -> {
+        when(cardMapper.cardToDTO(any())).thenAnswer(invocation -> {
             Card card = invocation.getArgument(0);
             System.out.println("Card ID in mapper: " + card.getId());
             CardResponseDTO dto = new CardResponseDTO();
@@ -415,7 +415,7 @@ public class AdminCardControllerTestsWeb {
         mockResponseDTO.setBalance(new BigDecimal("5000.00"));
 
         when(cardService.getAllCards(any(Pageable.class))).thenReturn(mockPage);
-        when(cardMapper.toDTO(any(Card.class))).thenReturn(mockResponseDTO);
+        when(cardMapper.cardToDTO(any(Card.class))).thenReturn(mockResponseDTO);
 
         mockMvc.perform(get("/api/admin/cards")
                 .param("page", "0")

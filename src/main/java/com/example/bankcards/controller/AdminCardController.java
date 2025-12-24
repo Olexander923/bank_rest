@@ -35,7 +35,7 @@ public class AdminCardController {
     ) {
             Card card = cardService.createCard(createRequestDTO, createRequestDTO.getUserId());
             System.out.println("Service returned card: " + card);
-            return ResponseEntity.ok(cardMapper.toDTO(card));
+            return ResponseEntity.ok(cardMapper.cardToDTO(card));
     }
 
 
@@ -49,14 +49,14 @@ public class AdminCardController {
     @PostMapping("/{cardId}/block")
     public ResponseEntity<CardResponseDTO> blockCard(@PathVariable Long cardId) {
         Card card = cardService.blockCard(cardId);
-        return ResponseEntity.ok(cardMapper.toDTO(card));
+        return ResponseEntity.ok(cardMapper.cardToDTO(card));
     }
 
 
     @PatchMapping("/{cardId}/activate")
     public ResponseEntity<CardResponseDTO> activateCard(@PathVariable Long cardId) {
         Card card = cardService.activateCard(cardId);
-        return ResponseEntity.ok(cardMapper.toDTO(card));
+        return ResponseEntity.ok(cardMapper.cardToDTO(card));
     }
 
     @GetMapping("/expiring")
@@ -65,7 +65,7 @@ public class AdminCardController {
             Pageable pageable
             ) {
         Page<Card> cards = cardService.getCardsWithExpiringDateBefore(date, pageable);
-        return ResponseEntity.ok(cards.map(cardMapper::toDTO));
+        return ResponseEntity.ok(cards.map(cardMapper::cardToDTO));
 
     }
 
@@ -75,7 +75,7 @@ public class AdminCardController {
             @RequestParam(required = false) CardStatus status) {
         Page<Card> cards = (status != null)
             ? cardService.getAllCardsByStatus(status,pageable):cardService.getAllCards(pageable);
-        return ResponseEntity.ok(cards.map(cardMapper::toDTO));
+        return ResponseEntity.ok(cards.map(cardMapper::cardToDTO));
         }
     }
 

@@ -82,7 +82,8 @@ public class UserCardControllerTest {
         }).when(jwtAuthenticationFilter).doFilter(any(), any(), any());
         CustomUserDetails customUserDetails = new CustomUserDetails(
                 1L, "testuser", "ValidPass1@",
-                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                List.of(new SimpleGrantedAuthority("ROLE_USER")),
+                Role.USER
         );
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -124,7 +125,7 @@ public class UserCardControllerTest {
         CardResponseDTO dto2 = new CardResponseDTO();
         dto2.setId(2L);
 
-        when(cardMapper.toDTO(any(Card.class))).thenReturn(dto1, dto2);
+        when(cardMapper.cardToDTO(any(Card.class))).thenReturn(dto1, dto2);
 
         mockMvc.perform(get("/api/user/cards")
                         .param("page", "0")
