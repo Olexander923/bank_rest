@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <script src="/clipboard.js"></script>
+    <script src="/admin_abilities.js"></script>
+</head>
+<body>
+<h1>Welcome!</h1>
+<h2>admin profile</h2>
+
+    <div>
+        <p th:if="${error}" style="color: red" th:text="${error}"></p>
+        <input type="text" name="userId" placeholder="User ID">
+        <input type="text" name="cardNumber" placeholder="Card number">
+        <input type="date" name="expireDate" placeholder="Expire date">
+        <select name="cardStatus">
+            <option value="ACTIVE">Active</option>
+            <option value="BLOCKED">Blocked</option>
+        </select>
+        <input type="number" name="balance" placeholder="Balance">
+
+        <!--блокировка-->
+        <select name="blockCardId" id="blockCardSelect"></select>
+        <button type="button" onclick="blockCard()">Block card</button>
+        <span id="blockStatus"></span>
+
+        <!--активация-->
+        <select name="activateCardId" id="activateCardSelect"></select>
+        <button type="button" onclick="activateCard()">Activate the card</button>
+        <span id="cardStatus"></span>
+
+        <!--просмотр транзакций-->
+        <select name="userId" id="transactionSelect"></select>
+        <button type="button" onclick="getAllUserTransactions()">View transactions</button>
+
+        <button type="button" onclick="createCard()">Create card</button>
+    </div>
+</body>
+</html>

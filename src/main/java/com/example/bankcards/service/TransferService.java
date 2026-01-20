@@ -1,19 +1,16 @@
 package com.example.bankcards.service;
 
 import com.example.bankcards.entity.Card;;
-import com.example.bankcards.entity.CardStatus;
+import com.example.bankcards.constants.CardStatus;
 import com.example.bankcards.entity.Transaction;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.TransactionRepository;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;;import static com.example.bankcards.entity.TransactionStatus.*;
+import java.time.LocalDate;;import static com.example.bankcards.constants.TransactionStatus.*;
 
 /**
  * переводы между картами,тут же внутри вся валидация создание и обновление транзации
@@ -30,9 +27,9 @@ public class TransferService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    //!важно на будещее! для postgres изоляция должна быть именно READ_COMMITTED, иначе будет ошибка сериализации,
+    //!важно, на будещее! для postgres изоляция должна быть именно READ_COMMITTED, иначе будет ошибка сериализации,
     //REPEATABLE READ может откатывать транзакции при конфликтах записи, это особенность именно postgres
-    public void transferBetweenCards(Long fromCardId, Long toCardId, Long userId, BigDecimal transferAmount) {
+    public void transferBetweenCards(Long fromCardId,Long toCardId,Long userId,BigDecimal transferAmount) {
         if (transferAmount == null || transferAmount.compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException("Transfer amount must be positive".formatted(transferAmount));
 

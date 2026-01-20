@@ -2,8 +2,8 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.dto.CardCreateRequestDTO;
 import com.example.bankcards.entity.Card;
-import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.constants.CardStatus;
+import com.example.bankcards.constants.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
@@ -22,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,17 +1,24 @@
 package com.example.bankcards.controller;
 
-import com.example.bankcards.dto.JwtResponse;
-import com.example.bankcards.dto.LoginRequest;
-import com.example.bankcards.dto.RegisterRequest;
-import com.example.bankcards.dto.UserResponseDTO;
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.dto.*;
+import com.example.bankcards.entity.RefreshToken;
+import com.example.bankcards.constants.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.EmailAlreadyExistsException;
+import com.example.bankcards.exception.TokenRefreshException;
 import com.example.bankcards.exception.ValidationException;
+import com.example.bankcards.repository.RefreshTokenRepository;
 import com.example.bankcards.repository.UserRepository;
+import com.example.bankcards.security.CustomUserDetailService;
 import com.example.bankcards.security.JwtUtils;
+import com.example.bankcards.service.RefreshTokenService;
+import com.example.bankcards.util.CustomUserDetails;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,51 +39,93 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final CustomUserDetailService userDetailService;
 
     @PostMapping("/auth/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest request) {
-            //создание аутентификации
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUsername(),
-                            request.getPassword()
-                    )
-            );
-            System.out.println("Authentication successful!");
+        //создание аутентификации
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
+        );
+        System.out.println("Authentication successful!");
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getUserId();
+        SecurityContextHolder.getContext().setAuthentication(authentication);//теперь сохраняем
+        //генерируем и возвращаем
+        System.out.println("Auth successful for: " + request.getUsername());
+        String jwt = jwtUtils.tokenGeneration((UserDetails) authentication.getPrincipal());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userId);
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);//теперь сохраняем
-            //генерируем и возвращаем
-            System.out.println("Auth successful for: " + request.getUsername());
-            String jwt = jwtUtils.tokenGeneration((UserDetails) authentication.getPrincipal());
-
-            return ResponseEntity.ok(new JwtResponse(jwt));
+        return ResponseEntity.ok(new JwtResponse(jwt, refreshToken.getToken()));
     }
 
-    @PostMapping("/auth/register")
-    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody RegisterRequest request) {
-        System.out.println("Received email: " + request.getEmail());
-        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            throw new com.example.bankcards.exception.ValidationException("Email is required!");
-        }
-        //проверяем пользователя по username и email, создаем нового
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new ValidationException("User name is already taken!");
-        }
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new EmailAlreadyExistsException("This email already exist!");
+    @PostMapping("/api/auth/logout")
+    public ResponseEntity<MessageResponseDTO> logout(HttpServletResponse response) {
+        Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principle instanceof CustomUserDetails) {
+            CustomUserDetails userDetails = (CustomUserDetails) principle;
+            Long userId = userDetails.getUserId();
+            refreshTokenService.deleteByUserId(userId);
         }
+        //очистка куки
+        ResponseCookie cleanCookie = jwtUtils.getCleanJwtCookie();
+        ResponseCookie refreshCleanCookie = jwtUtils.getCleanJwtRefreshCookie();
+        response.addHeader(HttpHeaders.SET_COOKIE, cleanCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCleanCookie.toString());
 
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));//шифр пароля
-        user.setEmail(request.getEmail());
+        return ResponseEntity.ok(new MessageResponseDTO("Logged out successfully"));
+    }
 
-        Role userRole = Role.USER;
-        user.setRole(userRole);
-        User savedUser = userRepository.save(user);
-        return ResponseEntity.ok(UserResponseDTO.fromEntity(savedUser));
+    @PostMapping("/auth/refresh")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+        String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ErrorResponseDTO("Refresh token is empty!"));
+        }
+        return refreshTokenService.findByToken(refreshToken)
+                .map(foundRefreshToken -> {
+                    refreshTokenService.verifyExpiration(foundRefreshToken);
+                    User user = foundRefreshToken.getUser();
+
+                    refreshTokenRepository.delete(foundRefreshToken);
+
+                    String newJwt = jwtUtils.tokenGeneration(
+                            new CustomUserDetails(
+                                    user.getId(),
+                                    user.getUsername(),
+                                    user.getPassword(),
+                                    userDetailService.getAuthorities(user), // ← используй поле контроллера
+                                    user.getRole()
+                            )
+                    );
+                    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user.getId());
+
+                    // Передай userDetailService в метод
+                    CustomUserDetails userDetails = new CustomUserDetails(
+                            user.getId(),
+                            user.getUsername(),
+                            user.getPassword(),
+                            userDetailService.getAuthorities(user),
+                            user.getRole()
+                    );
+                    ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+                    ResponseCookie refreshCookie = jwtUtils.generateRefreshJwtCookie(newRefreshToken.getToken());
+
+                    return ResponseEntity.ok()
+                            .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                            .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                            .body(new JwtResponse(newJwt,newRefreshToken.getToken()));
+                })
+                .orElseThrow(() -> new TokenRefreshException("Refresh token doesn't exist in data base!"));
     }
 }
+
+
+
+

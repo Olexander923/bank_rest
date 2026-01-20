@@ -4,8 +4,8 @@ import com.example.bankcards.controller.test_security_configs.AdminUserControlle
 import com.example.bankcards.dto.CardResponseDTO;
 import com.example.bankcards.dto.TransferRequestDTO;
 import com.example.bankcards.entity.Card;
-import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.constants.CardStatus;
+import com.example.bankcards.constants.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.*;
 import com.example.bankcards.security.CustomUserDetailService;

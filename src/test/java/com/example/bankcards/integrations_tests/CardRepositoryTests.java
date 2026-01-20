@@ -1,8 +1,8 @@
 package com.example.bankcards.integrations_tests;
 
 import com.example.bankcards.entity.Card;
-import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.constants.CardStatus;
+import com.example.bankcards.constants.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;

@@ -1,6 +1,6 @@
 package com.example.bankcards.dto;
 
-import com.example.bankcards.entity.TransactionStatus;
+import com.example.bankcards.constants.TransactionStatus;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.PastOrPresent;

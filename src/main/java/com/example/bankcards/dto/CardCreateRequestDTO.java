@@ -1,13 +1,10 @@
 package com.example.bankcards.dto;
 
-import com.example.bankcards.entity.CardStatus;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.example.bankcards.constants.CardStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

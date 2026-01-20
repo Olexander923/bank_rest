@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+
+</head>
+<body>
+<h1>Welcome!</h1>
+<h2>user profile</h2>
+<div>
+    <p th:if="${error}" style="color: red" th:text="${error}"></p>
+<!--блок переводов-->
+    <!--заполняется через js,id карты, текст = маскированный номер -->
+    <select name="fromCardId" id="fromCardSelect"></select>
+    <select name="toCardId" id="toCardSelect"></select>
+    <input type="number" name="amount" id="amountInput">
+    <button type="button" onclick="makeTransfer()">Make a transfer</button>
+    <span id="transferStatus"></span>
+
+<!--получение баланса-->
+    <select name="balanceCardId" id="balanceCardSelect"></select>
+    <button type="button" onclick="checkCardBalance()">Check balance</button>
+    <span id="balanceResult"></span>
+
+<!--блокировки-->
+    <select name="blockCardId" id="blockCardSelect"></select>
+    <button type="button" onclick="requestBlockCard()">Request a block card</button>
+    <span id="blockStatus"></span>
+
+<!--и получение всех карт-->
+    <button type="button" onclick="getUserCards()">View all my cards</button>
+
+<!--транзакции-->
+    <button type="button" onclick="viewAllTransactions()">View transactions</button>
+
+    <button type="button" onclick="getBankStatementToCSV()">Get a statement of operations to CSV</button>
+    <button type="button" onclick="getBankStatementToPDF()">Get a statement of operations to PDF</button>
+    <div id="spinner" class="spinner" style="display: none;"></div>
+
+</div>
+<div th:replace="cards_table :: cardsTable"></div>
+<script src="/user_abilities.js"></script>
+</body>
+</html>

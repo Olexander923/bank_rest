@@ -1,6 +1,6 @@
 package com.example.bankcards.dto;
 
-import com.example.bankcards.entity.TransactionStatus;
+import com.example.bankcards.constants.TransactionStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;

@@ -1,6 +1,6 @@
 package com.example.bankcards.controller;
 
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.constants.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.*;
 import com.example.bankcards.repository.UserRepository;

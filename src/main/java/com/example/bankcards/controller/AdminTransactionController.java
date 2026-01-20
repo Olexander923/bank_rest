@@ -2,7 +2,7 @@ package com.example.bankcards.controller;
 
 import com.example.bankcards.dto.TransactionFilterDTO;
 import com.example.bankcards.dto.TransactionResponseDTO;
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.constants.Role;
 import com.example.bankcards.service.TransactionService;
 import com.example.bankcards.util.CustomUserDetails;
 import jakarta.validation.Valid;

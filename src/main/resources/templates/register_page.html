@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register form</title>
+    <script src="clipboard.js"></script>
+</head>
+<body>
+<h1>Register</h1>
+<form method="post" action="/web/register">
+    <div>
+        <p th:if="${error}" style="color: red" th:text="${error}"></p>
+        <input type="text" name="username" placeholder="Username">
+        <input type="password" name="password" placeholder="Password">
+        <input type="email" name="email" placeholder="Email">
+        <button type="submit">Sign up</button>
+    </div>
+</form>
+<br>
+<button onclick="window.location.href='/user_auth_page'">Go to authentification form</button>
+</body>
+</html>

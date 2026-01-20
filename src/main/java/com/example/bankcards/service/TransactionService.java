@@ -3,7 +3,7 @@ package com.example.bankcards.service;
 import com.example.bankcards.dto.TransactionFilterDTO;
 import com.example.bankcards.dto.TransactionResponseDTO;
 import com.example.bankcards.entity.Transaction;
-import com.example.bankcards.entity.TransactionStatus;
+import com.example.bankcards.constants.TransactionStatus;
 import com.example.bankcards.repository.TransactionRepository;
 import com.example.bankcards.util.TransactionMapper;
 import com.example.bankcards.util.TransactionSpecification;

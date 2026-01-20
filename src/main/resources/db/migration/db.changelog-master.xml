@@ -8,4 +8,6 @@
     <include file="changes/v2__create_card_table.xml" relativeToChangelogFile="true"/>
     <include file="changes/v3__create_transaction_table.xml" relativeToChangelogFile="true"/>
     <include file="changes/v4__insert_admin_user.xml" relativeToChangelogFile="true"/>
+    <include file="changes/v5__create_block_card_request_table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/v6__create_refresh_token_table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -1,6 +1,6 @@
 package com.example.bankcards.util;
 
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.constants.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

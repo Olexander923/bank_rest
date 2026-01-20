@@ -40,3 +40,15 @@ management:
 
 app:
   card-encryption-key: ${CARD_ENCRYPTION_KEY:DefaultTestKey123456789012}
+
+token:
+  jwt_cookie_name: shadrin-jwt
+  jwt_refresh_cookie_name: shadrin-jwt-refresh
+  jwt_refresh_expiration_ms: 180000
+  access_token_validity_millis: 600000 #10 min
+  refresh_token_validity_millis: 864000000 # 10 days
+  token_secret: # оставить здесь или в .env?
+
+
+
+

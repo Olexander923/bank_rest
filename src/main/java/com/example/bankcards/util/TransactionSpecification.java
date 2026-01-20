@@ -2,7 +2,7 @@ package com.example.bankcards.util;
 
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.Transaction;
-import com.example.bankcards.entity.TransactionStatus;
+import com.example.bankcards.constants.TransactionStatus;
 import com.example.bankcards.entity.User;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * класс с методами запросов через criteria api
+ * конфиг с методами запросов через criteria api
  */
 public final class TransactionSpecification {
     private TransactionSpecification() {}

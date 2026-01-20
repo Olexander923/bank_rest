@@ -3,7 +3,7 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.CardCreateRequestDTO;
 import com.example.bankcards.dto.CardResponseDTO;
 import com.example.bankcards.entity.Card;
-import com.example.bankcards.entity.CardStatus;
+import com.example.bankcards.constants.CardStatus;
 import com.example.bankcards.service.CardService;
 import com.example.bankcards.util.CardMapper;
 import jakarta.validation.Valid;

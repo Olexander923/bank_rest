@@ -1,5 +1,6 @@
 package com.example.bankcards.controller;
 
+import com.example.bankcards.dto.BlockRequestDTO;
 import com.example.bankcards.dto.CardResponseDTO;
 import com.example.bankcards.dto.TransferRequestDTO;
 import com.example.bankcards.entity.Card;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/user/cards")
 @RequiredArgsConstructor
 @Validated
+@PreAuthorize("hasRole('USER')")
 public class UserCardController {
     private final CardService cardService;
     private final TransferService transferService;
@@ -82,5 +85,13 @@ public class UserCardController {
         );
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/cards/{cardId}/block-request")
+    public ResponseEntity<BlockRequestDTO> blockCardRequest(
+            @PathVariable Long cardId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        BlockRequestDTO request = cardService.requestBlockCard(cardId,userDetails.getUserId());
+        return ResponseEntity.ok(request);
     }
 }

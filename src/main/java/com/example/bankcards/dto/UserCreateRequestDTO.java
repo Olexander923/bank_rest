@@ -1,6 +1,6 @@
 package com.example.bankcards.dto;
 
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.constants.Role;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 

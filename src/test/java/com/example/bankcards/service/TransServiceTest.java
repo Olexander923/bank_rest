@@ -1,7 +1,7 @@
 package com.example.bankcards.service;
 
 import com.example.bankcards.entity.Card;
-import com.example.bankcards.entity.CardStatus;
+import com.example.bankcards.constants.CardStatus;
 import com.example.bankcards.entity.Transaction;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.repository.CardRepository;

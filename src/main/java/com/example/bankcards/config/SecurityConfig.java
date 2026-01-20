@@ -4,6 +4,7 @@ import com.example.bankcards.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -32,16 +33,31 @@ public class SecurityConfig {
 
     //todo для вэб-контроллера сделать вторую конфигурацию и выставить очередь @Order()
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("*"));
-                    config.setAllowedMethods(List.of("POST", "GET", "PATCH", "DELETE", "UPDATE"));
-                    config.setAllowedHeaders(List.of("*"));
-                    return config;
-                }))
+                .securityMatcher("/web/**", "/", "/admin/**", "/user/**", "/css/**", "/js/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .formLogin(form -> form.disable())
+                .csrf(csrf -> csrf.disable());
+        return http.build();
 
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http  //cors теперь убираю, почти, потому что сейчас добавился фронтент на thymeleaf, чтобы не блокироались
+                //запросы
+//                .cors(cors -> cors.configurationSource(request -> {
+//                    CorsConfiguration config = new CorsConfiguration();
+//                    //config.setAllowedOrigins(List.of("*"));
+//                    config.setAllowedOrigins(List.of("http://localhost:3000"));
+//                    config.setAllowCredentials(true);
+//                    return config;
+//                }))
+
+                .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -70,5 +86,4 @@ public class SecurityConfig {
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
 }

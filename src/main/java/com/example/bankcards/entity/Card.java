@@ -1,4 +1,5 @@
 package com.example.bankcards.entity;
+import com.example.bankcards.constants.CardStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -10,8 +11,6 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "card")
 public class Card {
-//    @Version
-//    private Long version;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

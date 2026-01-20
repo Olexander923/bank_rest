@@ -173,4 +173,15 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDTO(e.getMessage()));
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidTokenException(InvalidTokenException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(TokenRefreshException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTokenRefreshException(TokenRefreshException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDTO(e.getMessage()));
+    }
 }

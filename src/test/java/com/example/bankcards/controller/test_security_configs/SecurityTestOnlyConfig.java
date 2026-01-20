@@ -3,11 +3,13 @@ package com.example.bankcards.controller.test_security_configs;
 import com.example.bankcards.controller.AdminUserController;
 import com.example.bankcards.controller.AuthController;
 import com.example.bankcards.controller.UserCardController;
+import com.example.bankcards.repository.RefreshTokenRepository;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.security.CustomUserDetailService;
 import com.example.bankcards.security.JwtAuthenticationFilter;
 import com.example.bankcards.security.JwtUtils;
 import com.example.bankcards.service.CardService;
+import com.example.bankcards.service.RefreshTokenService;
 import com.example.bankcards.service.TransferService;
 import com.example.bankcards.service.UserService;
 import com.example.bankcards.util.CardEncryptionUtil;
@@ -97,7 +99,10 @@ public class SecurityTestOnlyConfig {
                 mock(AuthenticationManager.class),
                 mock(JwtUtils.class),
                 mock(UserRepository.class),
-                mock(PasswordEncoder.class)
+                mock(PasswordEncoder.class),
+                mock(RefreshTokenService.class),
+                mock(RefreshTokenRepository.class),
+                mock(CustomUserDetailService.class)
         );
     }
 

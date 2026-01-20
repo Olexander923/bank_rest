@@ -1,20 +1,16 @@
 package com.example.bankcards.service;
 
-import com.example.bankcards.entity.Card;
-import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.constants.CardStatus;
+import com.example.bankcards.constants.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.EmailAlreadyExistsException;
-import com.example.bankcards.exception.PasswordPolicyViolationException;
 import com.example.bankcards.exception.UserNameAlreadyExistException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
-import com.example.bankcards.util.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -37,9 +33,6 @@ public class UserService {
 
         if (userRepository.existsByEmail(email))
             throw new EmailAlreadyExistsException("Email already exist");
-
-//        if (!Validator.isValidPassword(password))
-//            throw new PasswordPolicyViolationException("Password too weak!");
 
         String hashPassword = passwordEncoder.encode(password);
         Role newRole = role;

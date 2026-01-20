@@ -11,6 +11,8 @@ public class CardMapper {
     private final CardEncryptionUtil cardEncryptionUtil;
 
     public CardResponseDTO cardToDTO(Card card) {
+
+        //todo добавить проверку на null
         String originalNumber = cardEncryptionUtil.decrypt(card.getCardNumber());
         String masked = "**** **** **** " + originalNumber.substring(originalNumber.length() - 4);
 

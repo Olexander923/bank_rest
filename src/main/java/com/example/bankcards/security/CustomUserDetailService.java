@@ -1,6 +1,5 @@
 package com.example.bankcards.security;
 
-import com.example.bankcards.entity.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.util.CustomUserDetails;
@@ -35,7 +34,7 @@ public class CustomUserDetailService implements UserDetailsService {
         );
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(User user) {
+    public Collection<? extends GrantedAuthority> getAuthorities(User user) {
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 }

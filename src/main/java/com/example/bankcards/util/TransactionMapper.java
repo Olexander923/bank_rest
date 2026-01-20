@@ -1,20 +1,16 @@
 package com.example.bankcards.util;
 
 import com.example.bankcards.dto.TransactionResponseDTO;
-import com.example.bankcards.dto.TransferRequestDTO;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class TransactionMapper {
     private final CardEncryptionUtil cardEncryptionUtil;
-
+    //todo добавить проверку на null
     public TransactionResponseDTO transactionToDTO(Transaction transaction) {
         Card fromCard = transaction.getFromCard();
         Card toCard = transaction.getToCard();

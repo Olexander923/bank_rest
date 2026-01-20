@@ -1,38 +1,39 @@
 package com.example.bankcards.service;
 
+import com.example.bankcards.constants.RequestStatus;
+import com.example.bankcards.dto.BlockRequestDTO;
 import com.example.bankcards.dto.CardCreateRequestDTO;
+import com.example.bankcards.entity.BlockRequest;
 import com.example.bankcards.entity.Card;
-import com.example.bankcards.entity.CardStatus;
+import com.example.bankcards.constants.CardStatus;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.CardBlockedException;
 import com.example.bankcards.exception.CardExpiredException;
+import com.example.bankcards.repository.BlockRequestRepository;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
+import com.example.bankcards.util.BlockRequestMapper;
 import com.example.bankcards.util.CardEncryptionUtil;
 import com.example.bankcards.util.Validator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.naming.ServiceUnavailableException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor
 public class CardService {
     private final UserRepository userRepository;
     private final CardRepository cardRepository;
     private final CardEncryptionUtil cardEncryptionUtil;
-
-
-    public CardService(UserRepository userRepository, CardRepository cardRepository, CardEncryptionUtil cardEncryptionUtil) {
-        this.userRepository = userRepository;
-        this.cardRepository = cardRepository;
-        this.cardEncryptionUtil = cardEncryptionUtil;
-    }
+    private final BlockRequestRepository blockRequestRepository;
+    private final BlockRequestMapper requestMapper;
 
     /**
      * создание карты
@@ -52,7 +53,6 @@ public class CardService {
             throw new IllegalArgumentException("Invalid card number");
         }
 
-
         Card newCard = new Card(
                 encryptedCardNumber,
                 cardCreateRequest.getExpireDate(),
@@ -65,7 +65,7 @@ public class CardService {
     }
 
     /**
-     * ,удаление карты
+     * удаление карты
      */
     public void deleteCard(Long cardId) {
         Card card = cardRepository.findById(cardId)
@@ -89,6 +89,24 @@ public class CardService {
         card.setCardStatus(CardStatus.BLOCKED);
         return cardRepository.save(card);
     }
+
+    /**
+     * запрос на блокировку от пользователя
+     */
+     public BlockRequestDTO requestBlockCard(Long cardId,Long userId) {
+         Card card = cardRepository.findById(cardId)
+                 .orElseThrow(() -> new IllegalArgumentException("Card with id: " + cardId + " not found"));
+         if (!card.getUser().getId().equals(userId)) {
+             throw new IllegalStateException("Сard doesn't belong to user");
+         }
+         BlockRequest blockRequest = new BlockRequest();
+         blockRequest.setCard(card);
+         blockRequest.setUser(card.getUser());
+         blockRequest.setRequestDate(LocalDateTime.now());
+         blockRequest.setRequestStatus(RequestStatus.PENDING);
+         BlockRequest savedRequest = blockRequestRepository.save(blockRequest);
+         return requestMapper.requestToDTO(savedRequest);
+     }
 
     /**
      * активация
@@ -150,7 +168,7 @@ public class CardService {
                         .formatted(cardId)));
 
         if (card.getCardStatus() == CardStatus.BLOCKED)
-            throw new CardBlockedException("CCannot get balance for blocked card");
+            throw new CardBlockedException("Cannot get balance for blocked card");
 
         if (card.getExpireDate().isBefore(LocalDate.now()))
             throw new CardExpiredException("Card expired!");

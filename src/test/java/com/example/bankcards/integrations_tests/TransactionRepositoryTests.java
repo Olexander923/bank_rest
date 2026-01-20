@@ -1,13 +1,14 @@
 package com.example.bankcards.integrations_tests;
 
+import com.example.bankcards.constants.CardStatus;
+import com.example.bankcards.constants.Role;
+import com.example.bankcards.constants.TransactionStatus;
 import com.example.bankcards.entity.*;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.TransactionRepository;
 import com.example.bankcards.repository.UserRepository;
-import com.example.bankcards.service.TransferService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -87,7 +88,7 @@ public class TransactionRepositoryTests {
 
         Card savedFromCard = cardRepository.save(fromCard);
         Card savedToCard = cardRepository.save(toCard);
-        Transaction transaction = new Transaction(savedFromCard,savedToCard,new BigDecimal("15000.00"),TransactionStatus.SUCCESS);
+        Transaction transaction = new Transaction(savedFromCard,savedToCard,new BigDecimal("15000.00"), TransactionStatus.SUCCESS);
         Transaction saved = transactionRepository.save(transaction);
         assertThat(saved.getId()).isNotNull();
     }

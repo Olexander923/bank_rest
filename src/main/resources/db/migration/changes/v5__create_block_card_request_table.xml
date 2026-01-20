@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="1" author="shadrin.dev">
+        <createTable tableName="block_card_request">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="card_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="request_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="request_status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="block_card_request"
+                                 baseColumnNames="card_id"
+                                 constraintName="fk_blockrequest_card"
+                                 referencedTableName="card"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+                baseTableName="block_card_request"
+                baseColumnNames="user_id"
+                constraintName="fk_blockrequest_user"
+                referencedTableName="users"
+                referencedColumnNames="id"/>
+
+        <rollback>
+            <dropTable tableName="block_card_request"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

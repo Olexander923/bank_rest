@@ -33,47 +33,62 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        //получить заголовок
-        final String authHeader = request.getHeader("Authorization");
-        //проверяем формат заголовка
-        if (authHeader == null || !authHeader.toLowerCase().startsWith("bearer ")) {
-            System.out.println("No valid authorization header");
+        if (path.startsWith("/web/") ||
+                path.startsWith("/admin/") ||
+                path.startsWith("/user/") ||
+                path.equals("/") ||
+                path.startsWith("/css/") ||
+                path.startsWith("/js/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        //извлечь токен
-        final String jwt = authHeader.substring(7);
-        System.out.println("JWT received: " + jwt.substring(0, Math.min(20, jwt.length())) + "...");
-        if (jwtUtils.tokenValidate(jwt)) {
-            String username = jwtUtils.getUsernameFromToken(jwt);//получили пользователя
-            System.out.println("Token valid for user: " + username);
+        String jwt = null;
+        //получить заголовок
+        final String authHeader = request.getHeader("Authorization");
+        //проверяем формат заголовка
+//        if (authHeader == null || !authHeader.toLowerCase().startsWith("bearer ")) {
+//            System.out.println("No valid authorization header");
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+        if (authHeader != null && authHeader.toLowerCase().startsWith("bearer ")) {
+            jwt = authHeader.substring(7);
+        }
+        if (jwt == null) {
+            jwt = jwtUtils.getJwtFromCookies(request);
+        }
 
-            try {
-                UserDetails userDetails = customUserDetailService.loadUserByUsername(username);//загрузили из БД
-                System.out.println("UserDetails loaded. Authorities: " + userDetails.getAuthorities());
+        if (jwt != null) {
+            System.out.println("JWT received: " + jwt.substring(0, Math.min(20, jwt.length())) + "...");
+            if (jwtUtils.tokenValidate(jwt)) {
+                String username = jwtUtils.getUsernameFromToken(jwt);//получили пользователя
+                System.out.println("Token valid for user: " + username);
 
-                //создать объект аутентификации
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
+                try {
+                    UserDetails userDetails = customUserDetailService.loadUserByUsername(username);//загрузили из БД
+                    System.out.println("UserDetails loaded. Authorities: " + userDetails.getAuthorities());
 
-                authenticationToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);//сохранение в контекст
-                System.out.println("Authentication set in SecurityContext");
-            } catch (Exception e) {
-                System.err.println("Failed to load user details: " + e.getMessage());
+                    //создать объект аутентификации
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+
+                    authenticationToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);//сохранение в контекст
+                    System.out.println("Authentication set in SecurityContext");
+                } catch (Exception e) {
+                    System.err.println("Failed to load user details: " + e.getMessage());
+                }
+            } else {
+                System.err.println("JWT token is NOT valid");
             }
-        } else {
-            System.err.println("JWT token is NOT valid");
         }
         filterChain.doFilter(request, response);//передать по цепочке
 
     }
-
 }
 

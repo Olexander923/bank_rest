@@ -1,7 +1,7 @@
 package com.example.bankcards.service;
 
-import com.example.bankcards.entity.CardStatus;
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.constants.CardStatus;
+import com.example.bankcards.constants.Role;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.EmailAlreadyExistsException;
 import com.example.bankcards.exception.UserNameAlreadyExistException;

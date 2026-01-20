@@ -1,10 +1,7 @@
 package com.example.bankcards.dto;
 
-import com.example.bankcards.entity.Role;
+import com.example.bankcards.constants.Role;
 import com.example.bankcards.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Data;
 
 @Data
